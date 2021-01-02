@@ -12,6 +12,8 @@ namespace App\ThreeCommas;
 use Config;
 use GuzzleHttp;
 use \GuzzleHttp\Exception\GuzzleException;
+use Guzzle\Http\Exception\ClientErrorResponseException;
+use App\Http\Controllers\Helpers\sendCurlGetRequest;
 
 trait ThreeCommas
 {
@@ -57,8 +59,6 @@ trait ThreeCommas
             }
         }
 
-        dd($options, $this->root . $url);
-
         try {
             $response = $client->request($config['method'], $this->root . $url, $options);
 
@@ -74,10 +74,27 @@ trait ThreeCommas
                 ];
             }
         } catch (GuzzleException $e) {
-            return [
-                'status' => $e->getCode(),
-                'response' => $this->threeCommas['response'][$e->getCode()]
-            ];
+            try {
+                if (strtoupper($config['method']) === 'GET') {
+                    $response = (new sendCurlGetRequest([
+                        'url' => $this->root . $url,
+                        'headers' => $options['headers'],
+                        'params' => $options['form_params']
+                    ]))->response();
+                } else {
+                    dd("Method Not Supported By CURL");
+                }
+
+
+                $response['response'] = json_decode($response['response']);
+
+                return $response;
+            } catch (\Exception $ee) {
+                return [
+                    'status' => $e->getCode(),
+                    'response' => $this->threeCommas['response'][$e->getCode()]
+                ];
+            }
         }
     }
 

@@ -11,9 +11,12 @@ use Log;
 use Illuminate\Database\QueryException;
 use Illuminate\Database\Eloquent\ModelNotFoundException;
 use Dyaa\Pushover\Facades\Pushover;
+use Illuminate\Http\Request;
 
 class ThreeCommasController extends Controller
 {
+    private $DEBUG_MODE = false;
+
     //
     use ThreeCommas;
 
@@ -23,20 +26,25 @@ class ThreeCommasController extends Controller
         Log::useDailyFiles(storage_path() . '/logs/ThreeCommasController.log');
     }
 
-    public function loadDealFrom3Commas() {
+    public function loadDealFrom3Commas(Request $request)
+    {
         $user = Auth::user();
         if (sizeof($user->api_keys) > 0) {
-            $limit = 10000;
-            $offset = 0;
+            $limit = $request->limit ?? 10000;
+            $offset = $request->offset ?? 0;
             do {
                 $response = $this->user_deals($user->api_keys[0], $limit, $offset);
-                if ($response['status'] != 200) {
+                if ($response['status'] != 200 && !env("APP_DEBUG") && $this->DEBUG_MODE) {
                     Log::critical(['user_id' => $user->id, 'username' => $user->name, 'loadDealFrom3CommasResponse' => $response['status'], 'message' => $response['response']]);
                     Pushover::push('loadDealFrom3CommasResponse', $response['response']);
                     Pushover::send();
                     break;
                 } else {
-                    $data = $response['response'];
+                    if ($response['status'] != 200 && env("APP_DEBUG") && $this->DEBUG_MODE) {
+                        $data = json_decode(file_get_contents(public_path() . '/../tmp/deals.json'));
+                    } else {
+                        $data = $response['response'];
+                    }
                     foreach ($data as $json) {
                         try {
                             try {
@@ -48,20 +56,19 @@ class ThreeCommasController extends Controller
                             $deal->api_key_id = $user->api_keys[0]['id'];
                             $deal->save();
                         } catch (QueryException $exception) {
-
                         }
                     }
                     $loaded = count($data);
                     $offset += count($data);
                 }
             } while ($loaded == $limit);
-
         }
 
         echo 'succeed';
     }
 
-    public function loadBotsFrom3Commas() {
+    public function loadBotsFrom3Commas()
+    {
         $user = Auth::user();
         if (sizeof($user->api_keys) > 0) {
             $response = $this->user_bots($user->api_keys[0]);
@@ -78,7 +85,6 @@ class ThreeCommasController extends Controller
                         $bot->api_key_id = $user->api_keys[0]['id'];
                         $bot->save();
                     } catch (QueryException $exception) {
-
                     }
                 }
             } else {
@@ -91,7 +97,8 @@ class ThreeCommasController extends Controller
         echo 'succeed';
     }
 
-    public function panicSellDeal($deal_id) {
+    public function panicSellDeal($deal_id)
+    {
         $user = Auth::user();
 
         if (sizeof($user->api_keys) > 0) {
@@ -109,7 +116,8 @@ class ThreeCommasController extends Controller
         echo 'succeed';
     }
 
-    public function cancelDeal($deal_id) {
+    public function cancelDeal($deal_id)
+    {
         $user = Auth::user();
 
         if (sizeof($user->api_keys) > 0) {
@@ -127,7 +135,8 @@ class ThreeCommasController extends Controller
         echo 'succeed';
     }
 
-    public function disableBot($bot_id) {
+    public function disableBot($bot_id)
+    {
         $user = Auth::user();
 
         if (sizeof($user->api_keys) > 0) {
@@ -145,7 +154,8 @@ class ThreeCommasController extends Controller
         echo 'succeed';
     }
 
-    public function enableBot($bot_id) {
+    public function enableBot($bot_id)
+    {
         $user = Auth::user();
 
         if (sizeof($user->api_keys) > 0) {
@@ -163,7 +173,8 @@ class ThreeCommasController extends Controller
         echo 'succeed';
     }
 
-    public function startNewDeal($bot_id) {
+    public function startNewDeal($bot_id)
+    {
         $user = Auth::user();
 
         if (sizeof($user->api_keys) > 0) {
