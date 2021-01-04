@@ -233,34 +233,33 @@ trait Dashboard
             })
             ->orderBy('id', 'desc')
             ->get()->map(function ($item) use (&$deals, &$sos, &$x, &$sum) {
-                if (!isset($sos[$x])) {
+                $key = "$item->completed_safety_orders_count / $item->max_safety_orders";
+                if (!isset($sos[$key])) {
                     $deals = 0;
-                    $sos[$x] = [
-                        'so' => 0,
-                        'max_safety_orders' => 0,
-                        'completed_safety_orders_count' => 0,
+                    $sos[$key] = [
+                        'so' => $key,
+                        'max_safety_orders' => $item->max_safety_orders,
+                        'completed_safety_orders_count' => $item->completed_safety_orders_count,
                         'deals' => $deals,
                     ];
                 }
 
                 $deals += 1;
-                $sos[$x]['deals'] = $deals;
-                $sos[$x]['max_safety_orders'] = $item->max_safety_orders;
-                $sos[$x]['completed_safety_orders_count'] = $item->completed_safety_orders_count;
-                $sos[$x]['so'] = "$item->completed_safety_orders_count / $item->max_safety_orders";
-                $sum['deals'] += 1;
-                if ($item->completed_safety_orders_count > 0) {
-                    $sum['max_safety_orders'] += $item->max_safety_orders;
-                    $sum['completed_safety_orders_count'] += $item->completed_safety_orders_count;
-                    $sum['so'] = "$sum[completed_safety_orders_count] / $sum[max_safety_orders]";
-                    $x += 1;
-                }
+                $sos[$key]['deals'] = $deals;
+                $sos[$key]['so'] = $key;
+                // $sum['deals'] += 1;
+                // if ($item->completed_safety_orders_count > 0) {
+                //     $sum['max_safety_orders'] += $item->max_safety_orders;
+                //     $sum['completed_safety_orders_count'] += $item->completed_safety_orders_count;
+                //     $sum['so'] = "$sum[completed_safety_orders_count] / $sum[max_safety_orders]";
+                //     $x += 1;
+                // }
 
                 return $item;
             });
 
         return [
-            'so' => $sos,
+            'so' => collect($sos)->values()->toArray(),
             'sum' => $sum,
         ];
     }
