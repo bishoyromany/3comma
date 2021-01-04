@@ -127,18 +127,23 @@
             <th>C PS</th>
             </tr></thead>
           <tbody>
+            <?php 
+                $so = 0;
+                $bo = 0;
+                $s_trades = [0,0,0];
+              ?>
           @if (count($active_deals_list) > 1)
             @foreach ($active_deals_list as $ad)
                 <td><a href="{{ route('basic.deal.show', $ad->id ) }}" class="label label-primary" title="Show Deal">{{ $ad->id }}</a><br>
                   <a href="{{ route('basic.bot.show', $ad->bot_id ) }}" class="label label-primary" title="Show Bot">{{ $ad->bot_name }}</a></td>
                 <td>{{ $ad->pair }}</td>
-                <td>{{ $ad->base_order_volume }}</td>
-                <td>{{ $ad->safety_order_volume }}</td>
+                <td>{{ $ad->base_order_volume }} <?php $bo += $ad->base_order_volume; ?></td>
+                <td>{{ $ad->safety_order_volume }} <?php $so += $ad->safety_order_volume; ?></td>
                 <td>{{ $ad->safety_order_step_percentage }}</td>
                 <td>{{ $ad->martingale_coefficient }}</td>
-                <td>{{ $ad->completed_safety_orders_count }}</td>
-                <td>{{ $ad->active_safety_orders_count }}</td>
-                <td>{{ $ad->max_safety_orders }}</td>
+                <td>{{ $ad->completed_safety_orders_count }} <?php $s_trades[0] += $ad->completed_safety_orders_count; ?></td>
+                <td>{{ $ad->active_safety_orders_count }} <?php $s_trades[1] += $ad->active_safety_orders_count; ?></td>
+                <td>{{ $ad->max_safety_orders }} <?php $s_trades[2] += $ad->max_safety_orders; ?></td>
                 <td>{{ $ad->take_profit }}%</td>
                 <td>C PS</td>
               </tr>
@@ -148,7 +153,23 @@
             <td colspan="47">No Data Available</td>
           </tr>
           @endif
-        </tbody></table>
+        </tbody>
+        <tfoot>
+          <tr>
+            <th>ID / Bot</th>
+            <th>Pair</th>
+            <th>{{$bo}}</th>
+            <th>{{$so}}</th>
+            <th>SOS</th>
+            <th>MC</th>
+            @foreach($s_trades as $trade)
+              <th>{{$trade}}</th>
+            @endforeach;
+            <th>TP</th>
+            <th>C PS</th>
+            </tr>
+          </tfoot>
+        </table>
       </div>
     </div>
   </div>
