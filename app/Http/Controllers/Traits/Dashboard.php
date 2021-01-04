@@ -1,4 +1,5 @@
 <?php
+
 /**
  * Created by PhpStorm.
  * User: mac
@@ -13,7 +14,8 @@ use DB;
 
 trait Dashboard
 {
-    public function dashboardData() {
+    public function dashboardData($request)
+    {
         $user = Auth::user();
 
         //TODO: create table to store these values updated by a cron rather than query the db on each dashboard view. This data might only be used during testing to verify data.
@@ -40,6 +42,8 @@ trait Dashboard
                 ->orderBy('id', 'desc')
                 ->limit(10)
                 ->get();
+
+            // $data['so_sum'] = $this->getCompletedDealsSoSum($request);
 
             $bases = DB::table('deals')
                 ->select(DB::raw('SUBSTRING_INDEX(pair, "_", 1) base'))
@@ -145,7 +149,7 @@ trait Dashboard
 
                 $pair_profit = (object) [
                     'base'      => $base->base,
-                    'profit'    => '+'.$base_profit,
+                    'profit'    => '+' . $base_profit,
                     'unique'    => $base_unique,
                     'completed' => $base_completed,
                     'panic'     => $base_panic,
@@ -164,7 +168,6 @@ trait Dashboard
                 $total_failed = $total_failed + $base_failed;
                 $total_cancelled = $total_cancelled + $base_cancelled;
                 $total_actual = $total_actual + $base_actual;
-
             }
 
             $total_profit = (object) [
@@ -181,7 +184,6 @@ trait Dashboard
             ];
 
             array_push($data['base_profit'], $total_profit);
-
         } else {
             $data['completed_deals'] = 0;
             $data['active_deals'] = 0;
@@ -194,5 +196,72 @@ trait Dashboard
         }
 
         return $data;
+    }
+
+    public function getCompletedDealsSoSum($request)
+    {
+        $user = auth()->user();
+        $deals = 0;
+        $x = 0;
+        $sos = [];
+        $sum = [
+            'max_safety_orders' => 0,
+            'completed_safety_orders_count' => 0,
+            'so' => 0,
+            'deals' => 0,
+        ];
+
+        $account = $request->account;
+
+        $dates = [$request->start, $request->end];
+
+        DB::table('deals')
+            ->where('api_key_id', $user->api_keys[0]->id)
+            ->where('finished?', 1)
+            ->where('deal_has_error', 0)
+            ->where(function ($query) use ($account) {
+                if (!empty($account)) {
+                    return $query->whereIn('account_id', $account);
+                }
+                return $query;
+            })->where(function ($query) use ($dates) {
+                if ($dates[0] && $dates[1]) {
+                    return $query->whereBetween("created_at", $dates);
+                }
+
+                return $query;
+            })
+            ->orderBy('id', 'desc')
+            ->get()->map(function ($item) use (&$deals, &$sos, &$x, &$sum) {
+                if (!isset($sos[$x])) {
+                    $deals = 0;
+                    $sos[$x] = [
+                        'so' => 0,
+                        'max_safety_orders' => 0,
+                        'completed_safety_orders_count' => 0,
+                        'deals' => $deals,
+                    ];
+                }
+
+                $deals += 1;
+                $sos[$x]['deals'] = $deals;
+                $sos[$x]['max_safety_orders'] = $item->max_safety_orders;
+                $sos[$x]['completed_safety_orders_count'] = $item->completed_safety_orders_count;
+                $sos[$x]['so'] = $item->completed_safety_orders_count / $item->max_safety_orders;
+                $sum['deals'] += 1;
+                if ($item->completed_safety_orders_count > 0) {
+                    $sum['max_safety_orders'] += $item->max_safety_orders;
+                    $sum['completed_safety_orders_count'] += $item->completed_safety_orders_count;
+                    $sum['so'] += $item->completed_safety_orders_count / $item->max_safety_orders;
+                    $x += 1;
+                }
+
+                return $item;
+            });
+
+        return [
+            'so' => $sos,
+            'sum' => $sum,
+        ];
     }
 }

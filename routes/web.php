@@ -25,6 +25,7 @@ Route::get('/', function () {
 Route::group(['middleware' => ['web', 'auth', /*'isEmailVerified'*/]], function () {
      Route::get('/dashboard', 'DashboardController@index');
      Route::get('/dashboard/data', 'DashboardController@data')->name('dashboard/data');
+     Route::post('/dashboard/soSum', 'DashboardController@soSum')->name('dashboard/soSum');
 
      Route::get('/apikey', 'ApiKeyController@index');
      Route::get('/apikey/create', 'ApiKeyController@create');

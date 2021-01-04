@@ -6,6 +6,7 @@ use App\Http\Controllers\Traits\Dashboard;
 use Auth;
 use Session;
 use DB;
+use Illuminate\Http\Request;
 
 class DashboardController extends Controller
 {
@@ -22,15 +23,24 @@ class DashboardController extends Controller
      *
      * @return \Illuminate\Http\Response
      */
-    public function index()
+    public function index(Request $request)
     {
-        $data = $this->dashboardData();
-
+        $data = $this->dashboardData($request);
+        $api_key = auth()->user()->api_keys[0]->id;
+        $data['api_key'] = $api_key;
         return view('dashboard', $data);
     }
 
-    public function data() {
-        $data = $this->dashboardData();
+    public function data(Request $request)
+    {
+        $data = $this->dashboardData($request);
+
+        return response()->json($data);
+    }
+
+    public function soSum(Request $request)
+    {
+        $data = $this->getCompletedDealsSoSum($request);
 
         return response()->json($data);
     }

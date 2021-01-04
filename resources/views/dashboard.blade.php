@@ -106,6 +106,39 @@
 
 <div class="row">
   <div class="col-sm-12 col-md-12">
+    <div class="box box-primary">
+      <div class="box-header">
+        <h3 class="box-title">SO Sum</h3>
+      </div>
+
+        <div class="form-group" style="margin-top: 15px;">
+            <div class="form-group col-md-3">
+                <label>Accounts</label>
+                <select id="account" class="select2 account" multiple="multiple" style="width: 300px;"></select>
+            </div>
+
+            <div class="form-group col-md-3">
+                <div class="input-group">
+                    <button type="button" class="btn btn-default form-control pull-right daterange" id="daterange">
+                <span>
+                  <i class="fa fa-calendar"></i> Please select date range
+                </span>
+                        <i class="fa fa-caret-down"></i>
+                    </button>
+                </div>
+            </div>
+            <div class="col-md-6"></div>
+        </div>
+        <div style="clear:both;"></div>
+        <div style="padding: 10px;">
+          <table id ="tbl" class="table table-bordered table-striped table-hover-blue"></table>
+        </div>
+    </div>
+  </div>
+</div>
+
+<div class="row">
+  <div class="col-sm-12 col-md-12">
     <div class="box box-warning">
       <div class="box-header">
         <div class="pull-right">
@@ -291,6 +324,96 @@
 @endsection
 
 @section('script')
+  <script>
+    // table
+    var columns = {
+        "columns": [
+            { "title": "#", "data": "number" },
+            { "title": "So", "data": "so" },
+            { "title": "Deals", "data": "deals" },
+            { "title": "Completed Safety Orders Count", "data": "completed_safety_orders_count" },
+            { "title": "Max Safety Orders", "data": "max_safety_orders" },
+        ],
+        "columnDefs": [ {
+            "targets": 0,
+            "data": "number",
+            "render": rowNum
+        } ]
+    };
+
+    var rangePickerOptions = {
+        opens: "right",
+        ranges   : {
+            'Today'       : [moment(), moment()],
+            'Yesterday'   : [moment().subtract(1, 'days'), moment().subtract(1, 'days')],
+            'Last 7 Days' : [moment().subtract(6, 'days'), moment()],
+            'Last 30 Days': [moment().subtract(29, 'days'), moment()],
+            'This Month'  : [moment().startOf('month'), moment().endOf('month')],
+            'Last Month'  : [moment().subtract(1, 'month').startOf('month'), moment().subtract(1, 'month').endOf('month')]
+        },
+        startDate: moment().subtract(29, 'days'),
+        endDate  : moment()
+    };
+
+    var rangeStart, rangeEnd;
+    var accounts = [];
+
+    function makeReport() {
+      $('.overlay').show();
+      $.post("{{ route('dashboard/soSum') }}", {
+          "_token" : "{{ csrf_token() }}",
+          "account": accounts,
+          "start" : rangeStart != null ? rangeStart.format('YYYY-MM-DD 00:00:00') : "",
+          "end" : rangeEnd != null ?  rangeEnd.format('YYYY-MM-DD 23:59:59') : "",
+          "api_key" : "{{ $api_key }}",
+      }, function (response) {
+            response = response.so;
+              $table.clear();
+              $table.rows.add(response);
+              $table.draw();
+
+              $('.overlay').hide();
+      });
+    }
+
+    function rowNum(data, type, row, meta) {
+        return meta.row + 1;
+    }
+
+    function updateAccounts() {
+        $.post("{{ route('profit/getAccounts') }}", {
+            "_token" : "{{ csrf_token() }}",
+            "api_key" : "{{ $api_key }}",
+        }, function (response) {
+            var pairId = "account";
+            accounts = [];
+            $('#' + pairId).empty();
+            response.forEach(function (row, index) {
+                $('#' + pairId).append('<option value="' + row.id + '">' + row.name + '</option>');
+            });
+            makeReport();
+        });
+    }
+
+
+    $(function () {
+            $table = $('#tbl').DataTable(columns);
+
+            $('#daterange').daterangepicker(rangePickerOptions, function (start, end) {
+                $('#daterange span').html(start.format('MMMM D, YYYY') + ' - ' + end.format('MMMM D, YYYY'));
+                rangeStart = start; rangeEnd = end;
+                makeReport();
+            });
+
+            $('.account').select2().on('change', function () {
+                accounts = $(this).val();
+                makeReport();
+            });
+
+            updateAccounts();
+        });
+
+  </script>
   @if (session()->has('load_deal'))
     <script>
         function updateDashboard() {
