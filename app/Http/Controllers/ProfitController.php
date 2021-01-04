@@ -126,7 +126,7 @@ class ProfitController extends Controller
             AND `finished?` = 1
             GROUP BY $interval
             ORDER BY $interval ASC;";
-        } else {
+        }elseif(isset($pair)){
             $p = isset($pair) ? "pair IN ('" . implode("','", $pair) . "')" : "";
             $a = isset($account) ? "account_id IN ('" . implode("','", $account) . "')" : "";
             $b = isset($bot) ? "bot_id IN ('" . implode("','", $bot) . "')" : "";
@@ -146,6 +146,24 @@ class ProfitController extends Controller
             AND `finished?` = 1
             GROUP BY pair, $interval
             ORDER BY $interval ASC;";
+        }else {
+            $a = isset($account) ? "account_id IN ('" . implode("','", $account) . "')" : "";
+            $and = (isset($bot) && isset($account)) ? "AND" : "";
+            $b = isset($bot) ? "bot_id IN ('" . implode("','", $bot) . "')" : "";
+
+            $sql = "SELECT
+                   'All Pairs' pair, $interval intval, SUM(final_profit) total_profit,
+                   SUM(CASE WHEN deals.status in ('completed', 'panic_sold')
+                   THEN 1
+                   ELSE 0
+                   END
+                   ) as total_deals
+            FROM deals
+            WHERE pair LIKE '{$base}_%' AND $a $and $b {$where} AND deals.api_key_id={$api_key} $range
+            AND status IN ('completed', 'stop_loss_finished' 'panic_sold', 'switched')
+            AND `finished?` = 1
+            GROUP BY $interval
+            ORDER BY $interval ASC;";
         }
 
         $report = DB::select($sql);
@@ -160,41 +178,92 @@ class ProfitController extends Controller
         return response()->json($report);
     }
 
+    public function generateReportWhere($start, $end, $interval, $strategy){
+        if (isset($start) && isset($end))
+            $range = "AND created_at BETWEEN '$start' AND '$end'\n";
+        else
+            $range = "";
+
+        if ($interval == "daily")
+            $interval = "DATE(created_at)";
+        elseif ($interval == "weekly")
+            $interval = "WEEK(created_at)";
+        elseif ($interval == "monthly")
+            $interval = "DATE_FORMAT(created_at, '%Y-%m')";
+        elseif ($interval == "yearly")
+            $interval = "YEAR(created_at)";
+
+        if ($strategy != "%")
+            $where = " AND type LIKE '{$strategy}'";
+        else
+            $where = "";
+
+        return ['where' => $where, 'range' => $range];
+    }
+
     function getPairByBase(Request $request)
     {
         $base = $request->input('base');
         $strategy = $request->input('strategy');
         $api_key = $request->input('api_key');
 
-        if ($strategy == "%") {
-            $sql = "SELECT
-                       pair, SUM(final_profit) total_profit,
-                       SUM(CASE WHEN deals.status in ('completed', 'panic_sold')
-                       THEN 1
-                       ELSE 0
-                       END
-                       ) as total_deals
-                FROM deals
-                WHERE pair LIKE '{$base}_%' AND deals.api_key_id={$api_key}
-                AND deals.status IN ('completed', 'stop_loss_finished' 'panic_sold', 'switched')
-                AND `finished?` = 1
-                GROUP BY pair
-                ORDER BY total_profit DESC;";
-        } else {
-            $sql = "SELECT
-                       pair, SUM(final_profit) total_profit,
-                       SUM(CASE WHEN status in ('completed', 'panic_sold')
-                       THEN 1
-                       ELSE 0
-                       END
-                       ) as total_deals
-                FROM deals
-                WHERE pair LIKE '{$base}_%' AND type LIKE '{$strategy}' AND api_key_id={$api_key}
-                AND status IN ('completed', 'stop_loss_finished' 'panic_sold', 'switched')
-                AND `finished?` = 1
-                GROUP BY pair
-                ORDER BY total_profit DESC;";
-        }
+        $base = $request->input('base');
+        $account = $request->input('account');
+        $strategy = $request->input('strategy');
+        $start = $request->input('start');
+        $end = $request->input('end');
+        $interval = $request->input('interval');
+        $api_key = $request->input('api_key');
+
+        $wr = $this->generateReportWhere($start, $end, $interval, $strategy);
+        $where = $wr['where'];
+        $range = $wr['range'];
+        $whereAcc = isset($account) ? "AND account_id IN ('" . implode("','", $account) . "')" : "";
+
+        $sql = "SELECT
+            pair, SUM(final_profit) total_profit,
+            SUM(CASE WHEN status in ('completed', 'panic_sold')
+                THEN 1
+                ELSE 0
+                END
+                ) as total_deals
+            FROM deals
+            WHERE pair LIKE '{$base}_%' {$whereAcc} {$where} AND api_key_id={$api_key} $range
+            AND status IN ('completed', 'stop_loss_finished' 'panic_sold', 'switched')
+            AND `finished?` = 1
+            GROUP BY pair
+            ORDER BY total_profit DESC;";
+
+
+        // if ($strategy == "%") {
+        //     $sql = "SELECT
+        //                pair, $interval intval, SUM(final_profit) total_profit,
+        //                SUM(CASE WHEN deals.status in ('completed', 'panic_sold')
+        //                THEN 1
+        //                ELSE 0
+        //                END
+        //                ) as total_deals
+        //         FROM deals
+        //         WHERE pair LIKE '{$base}_%' AND deals.api_key_id={$api_key}
+        //         AND deals.status IN ('completed', 'stop_loss_finished' 'panic_sold', 'switched')
+        //         AND `finished?` = 1
+        //         GROUP BY pair
+        //         ORDER BY total_profit DESC;";
+        // } else {
+        //     $sql = "SELECT
+        //                pair, SUM(final_profit) total_profit,
+        //                SUM(CASE WHEN status in ('completed', 'panic_sold')
+        //                THEN 1
+        //                ELSE 0
+        //                END
+        //                ) as total_deals
+        //         FROM deals
+        //         WHERE pair LIKE '{$base}_%' AND type LIKE '{$strategy}' AND api_key_id={$api_key}
+        //         AND status IN ('completed', 'stop_loss_finished' 'panic_sold', 'switched')
+        //         AND `finished?` = 1
+        //         GROUP BY pair
+        //         ORDER BY total_profit DESC;";
+        // }
 
         $profit = DB::select($sql);
 
