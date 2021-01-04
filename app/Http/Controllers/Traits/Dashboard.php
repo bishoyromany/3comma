@@ -247,12 +247,12 @@ trait Dashboard
                 $sos[$x]['deals'] = $deals;
                 $sos[$x]['max_safety_orders'] = $item->max_safety_orders;
                 $sos[$x]['completed_safety_orders_count'] = $item->completed_safety_orders_count;
-                $sos[$x]['so'] = $item->completed_safety_orders_count / $item->max_safety_orders;
+                $sos[$x]['so'] = "$item->completed_safety_orders_count / $item->max_safety_orders";
                 $sum['deals'] += 1;
                 if ($item->completed_safety_orders_count > 0) {
                     $sum['max_safety_orders'] += $item->max_safety_orders;
                     $sum['completed_safety_orders_count'] += $item->completed_safety_orders_count;
-                    $sum['so'] += $item->completed_safety_orders_count / $item->max_safety_orders;
+                    $sum['so'] = "$sum[completed_safety_orders_count] / $sum[max_safety_orders]";
                     $x += 1;
                 }
 
