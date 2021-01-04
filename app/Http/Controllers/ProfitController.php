@@ -237,6 +237,7 @@ class ProfitController extends Controller
 
     function getBotByBase(Request $request)
     {
+        $type = $request->input('type');
         $base = $request->input('base');
         $account = $request->input('account');
         $strategy = $request->input('strategy');
@@ -270,6 +271,12 @@ class ProfitController extends Controller
                 ORDER BY total_profit DESC;";
 
         $profit = DB::select($sql);
+
+        if($type == "ACTIVE"){
+            $profit = collect($profit)->filter(function($item){
+                return strpos($item->name,"Deleted Bot ID:") === false;
+            })->values()->all();
+        }
 
         return response()->json($profit);
     }

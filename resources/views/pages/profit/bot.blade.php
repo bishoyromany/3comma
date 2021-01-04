@@ -31,6 +31,13 @@
                     <select id="account_both" class="select2 account" multiple="multiple" style="width: 300px;"></select>
                 </div>
                 <div class="form-group col-md-3">
+                    <label>Type</label>
+                    <select id="type_both" class="select2 type" style="width: 300px;">
+                        <option value="All">All</option>
+                        <option value="ACTIVE">Exclude Delete</option>
+                    </select>
+                </div>
+                <div class="form-group col-md-3">
                     <div class="input-group">
                         <button type="button" class="btn btn-default form-control pull-right daterange" id="daterange_both">
                     <span>
@@ -65,6 +72,13 @@
                     <div class="form-group col-md-3">
                         <label>Accounts</label>
                         <select id="account_long" class="select2 account" multiple="multiple" style="width: 300px;"></select>
+                    </div>
+                    <div class="form-group col-md-3">
+                        <label>Type</label>
+                        <select id="type_long" class="select2 type" style="width: 300px;">
+                            <option value="All">All</option>
+                            <option value="ACTIVE">Exclude Delete</option>
+                        </select>
                     </div>
                     <div class="form-group col-md-3">
                         <div class="input-group">
@@ -103,6 +117,13 @@
                     <div class="form-group col-md-3">
                         <label>Accounts</label>
                         <select id="account_short" class="select2 account" multiple="multiple" style="width: 300px;"></select>
+                    </div>
+                    <div class="form-group col-md-3">
+                        <label>Type</label>
+                        <select id="type_short" class="select2 type" style="width: 300px;">
+                            <option value="All">All</option>
+                            <option value="ACTIVE">Exclude Delete</option>
+                        </select>
                     </div>
                     <div class="form-group col-md-3">
                         <div class="input-group">
@@ -162,6 +183,7 @@
 
         var rangeStartBoth, rangeEndBoth, rangeStartLong, rangeEndLong, rangeStartShort, rangeEndShort;
         var accountsBoth = accountsLong = accountsShort = [];
+        var typeBoth = typeLong = typeShort = "ALL";
         var baseBoth = baseLong = baseShort = "";
         var strategy = "%";
 
@@ -174,21 +196,25 @@
                 rangeEnd = rangeEndBoth;
                 base = baseBoth;
                 accounts = accountsBoth;
+                type = typeBoth;
             } else if (dealType == "Deal") {
                 rangeStart = rangeStartLong;
                 rangeEnd = rangeEndLong;
                 base = baseLong;
+                type = typeLong;
                 accounts = accountsLong;
             } else if (dealType == "Deal::ShortDeal") {
                 rangeStart = rangeStartShort;
                 rangeEnd = rangeEndShort;
                 base = baseShort;
+                type = typeShort;
                 accounts = accountsShort;
             }
 
             $.post("{{ route('profit/getBotByBase') }}", {
                 "_token" : "{{ csrf_token() }}",
                 "base" : base,
+                "type" : type,
                 "account": accounts,
                 "strategy" : dealType,
                 "start" : rangeStart != null ? rangeStart.format('YYYY-MM-DD 00:00:00') : "",
@@ -206,11 +232,11 @@
                         $tableBoth.rows.add(response);
                         $tableBoth.draw();
 
-                        $tableBothUnique.clear();
-                        $tableBothUnique.rows.add(response.filter(item => {
-                            return item.name.indexOf("Deleted Bot ID") === -1;
-                        }));
-                        $tableBothUnique.draw();
+                        // $tableBothUnique.clear();
+                        // $tableBothUnique.rows.add(response.filter(item => {
+                        //     return item.name.indexOf("Deleted Bot ID") === -1;
+                        // }));
+                        // $tableBothUnique.draw();
 
                         Highcharts.chart('chart_both', {
                             chart: {
@@ -244,11 +270,11 @@
                         $tableLong.rows.add(response);
                         $tableLong.draw();
 
-                        $tableLongUnique.clear();
-                        $tableLongUnique.rows.add(response.filter(item => {
-                            return item.name.indexOf("Deleted Bot ID") === -1;
-                        }));
-                        $tableLongUnique.draw();
+                        // $tableLongUnique.clear();
+                        // $tableLongUnique.rows.add(response.filter(item => {
+                        //     return item.name.indexOf("Deleted Bot ID") === -1;
+                        // }));
+                        // $tableLongUnique.draw();
 
                         Highcharts.chart('chart_long', {
                             chart: {
@@ -282,11 +308,11 @@
                         $tableShort.rows.add(response);
                         $tableShort.draw();
 
-                        $tableShortUnique.clear();
-                        $tableShortUnique.rows.add(response.filter(item => {
-                            return item.name.indexOf("Deleted Bot ID") === -1;
-                        }));
-                        $tableShortUnique.draw();
+                        // $tableShortUnique.clear();
+                        // $tableShortUnique.rows.add(response.filter(item => {
+                        //     return item.name.indexOf("Deleted Bot ID") === -1;
+                        // }));
+                        // $tableShortUnique.draw();
 
                         Highcharts.chart('chart_short', {
                             chart: {
@@ -356,14 +382,14 @@
 
 
         $(function () {
-            $tableBothUnique = $('#tbl_both_unique').DataTable(columns);
+            // $tableBothUnique = $('#tbl_both_unique').DataTable(columns);
             $tableBoth = $('#tbl_both').DataTable(columns);
 
             $tableLong = $('#tbl_long').DataTable(columns);
-            $tableLongUnique = $('#tbl_long_unique').DataTable(columns);
+            // $tableLongUnique = $('#tbl_long_unique').DataTable(columns);
 
             $tableShort = $('#tbl_short').DataTable(columns);
-            $tableShortUnique = $('#tbl_short_unique').DataTable(columns);
+            // $tableShortUnique = $('#tbl_short_unique').DataTable(columns);
 
             $('#daterange_both').daterangepicker(rangePickerOptions, function (start, end) {
                 $('#daterange_both span').html(start.format('MMMM D, YYYY') + ' - ' + end.format('MMMM D, YYYY'));
@@ -397,6 +423,20 @@
                     makeReport("Deal::ShortDeal");
                 } else {
                     accountsBoth = $(this).val();
+                    makeReport("%");
+                }
+            });
+
+            $('.type').select2().on('change', function () {
+                strategy = $(this).attr('id').split("_")[1];
+                if (strategy == "long") {
+                    typeLong = $(this).val();
+                    makeReport("Deal");
+                } else if (strategy == "short") {
+                    typeShort = $(this).val();
+                    makeReport("Deal::ShortDeal");
+                } else {
+                    typeBoth = $(this).val();
                     makeReport("%");
                 }
             });
