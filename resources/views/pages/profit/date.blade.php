@@ -84,9 +84,17 @@
                         @endforeach
                     </select>
                 </div>
-                <div class="form-group col-md-4">
+                <div class="form-group col-md-3">
+                    <label>Accounts</label>
+                    <select id="account_long" class="select2 account" multiple="multiple" style="width: 300px;"></select>
+                </div>
+                <div class="form-group col-md-3">
                     <label>Pairs</label>
                     <select id="pair_long" class="select2 pair" multiple="multiple" style="width: 300px;"></select>
+                </div>
+                <div class="form-group col-md-3">
+                    <label>Bots</label>
+                    <select id="bot_long" class="select2 bot" multiple="multiple" style="width: 300px;"></select>
                 </div>
                 <div class="form-group col-md-3">
                     <div class="input-group">
@@ -134,9 +142,17 @@
                         @endforeach
                     </select>
                 </div>
-                <div class="form-group col-md-4">
+                <div class="form-group col-md-3">
+                    <label>Accounts</label>
+                    <select id="account_short" class="select2 account" multiple="multiple" style="width: 300px;"></select>
+                </div>
+                <div class="form-group col-md-3">
                     <label>Pairs</label>
                     <select id="pair_short" class="select2 pair" multiple="multiple" style="width: 300px;"></select>
+                </div>
+                <div class="form-group col-md-3">
+                    <label>Bots</label>
+                    <select id="bot_short" class="select2 bot" multiple="multiple" style="width: 300px;"></select>
                 </div>
                 <div class="form-group col-md-3">
                     <div class="input-group">
