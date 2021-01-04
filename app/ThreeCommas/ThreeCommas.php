@@ -85,7 +85,6 @@ trait ThreeCommas
                     dd("Method Not Supported By CURL");
                 }
 
-
                 $response['response'] = json_decode($response['response']);
 
                 return $response;
@@ -106,6 +105,11 @@ trait ThreeCommas
     public function user_bots($key)
     {
         return $this->requestThreeCommas($key, 'user_bots');
+    }
+
+    public function all_accounts($key)
+    {
+        return $this->requestThreeCommas($key, 'all_accounts');
     }
 
     public function deal_panic_sell($key, $deal_id)

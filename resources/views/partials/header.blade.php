@@ -1,5 +1,4 @@
 <header class="main-header">
-
     <a href="{{ url('dashboard') }}" class="logo">
         <span class="logo-mini"><img src="{{ asset('img/logoicon.jpg') }}" height="36px"></span>
         <span class="logo-lg"><img src="{{ asset('img/logo-black.jpg') }}" height="36px"></span>

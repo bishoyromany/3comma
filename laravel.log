@@ -1,0 +1,11 @@
+[2021-01-02 22:52:27] local.ERROR: ErrorException: file_put_contents(G:\nginx\www\3commas-bot\storage\framework/sessions/uzgQAvkXrIffymYGaHo3tlt7sq0OioiVVewPTi8l): failed to open stream: No such file or directory in /home/bisu7589/public_html/ntm.nexinus.com/vendor/laravel/framework/src/Illuminate/Filesystem/Filesystem.php:122
+Stack trace:
+#0 [internal function]: Illuminate\Foundation\Bootstrap\HandleExceptions->handleError(2, 'file_put_conten...', '/home/bisu7589/...', 122, Array)
+#1 /home/bisu7589/public_html/ntm.nexinus.com/vendor/laravel/framework/src/Illuminate/Filesystem/Filesystem.php(122): file_put_contents('G:\\nginx\\www\\3c...', 'a:3:{s:6:"_toke...', 2)
+#2 /home/bisu7589/public_html/ntm.nexinus.com/vendor/laravel/framework/src/Illuminate/Session/FileSessionHandler.php(83): Illuminate\Filesystem\Filesystem->put('G:\\nginx\\www\\3c...', 'a:3:{s:6:"_toke...', true)
+#3 /home/bisu7589/public_html/ntm.nexinus.com/vendor/laravel/framework/src/Illuminate/Session/Store.php(128): Illuminate\Session\FileSessionHandler->write('uzgQAvkXrIffymY...', 'a:3:{s:6:"_toke...')
+#4 /home/bisu7589/public_html/ntm.nexinus.com/vendor/laravel/framework/src/Illuminate/Session/Middleware/StartSession.php(88): Illuminate\Session\Store->save()
+#5 /home/bisu7589/public_html/ntm.nexinus.com/vendor/laravel/framework/src/Illuminate/Foundation/Http/Kernel.php(218): Illuminate\Session\Middleware\StartSession->terminate(Object(Illuminate\Http\Request), Object(Illuminate\Http\Response))
+#6 /home/bisu7589/public_html/ntm.nexinus.com/vendor/laravel/framework/src/Illuminate/Foundation/Http/Kernel.php(189): Illuminate\Foundation\Http\Kernel->terminateMiddleware(Object(Illuminate\Http\Request), Object(Illuminate\Http\Response))
+#7 /home/bisu7589/public_html/ntm.nexinus.com/public/index.php(58): Illuminate\Foundation\Http\Kernel->terminate(Object(Illuminate\Http\Request), Object(Illuminate\Http\Response))
+#8 {main}  

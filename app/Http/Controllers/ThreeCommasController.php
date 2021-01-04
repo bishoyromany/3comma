@@ -4,6 +4,7 @@ namespace App\Http\Controllers;
 
 use App\Bot;
 use App\Deal;
+use App\Account;
 use App\ThreeCommas\ThreeCommas;
 use Config;
 use Auth;
@@ -90,6 +91,43 @@ class ThreeCommasController extends Controller
             } else {
                 Log::critical(['user_id' => $user->id, 'username' => $user->name, 'loadBotsFrom3CommasResponse' => $response['status'], 'message' => $response['response']]);
                 Pushover::push('loadBotsFrom3CommasResponse', $response['response']);
+                Pushover::send();
+            }
+        }
+
+        echo 'succeed';
+    }
+
+    public function loadAccountsFrom3Commas()
+    {
+        $user = Auth::user();
+        if (sizeof($user->api_keys) > 0) {
+            $response = $this->all_accounts($user->api_keys[0]);
+            if ($response['status'] == 200) {
+                $data = $response['response'];
+                foreach ($data as $json) {
+                    try {
+                        try {
+                            $account = Account::findOrFail($json->id);
+                        } catch (ModelNotFoundException $e) {
+                            $account = new Account();
+                        }
+                        $account->fill(
+                            [
+                                'account' => (array)$json,
+                                'user_id' => $user->id,
+                                'name'    => $json->name,
+                                'id'      => $json->id
+                            ]
+                        );
+                        $account->api_key_id = $user->api_keys[0]['id'];
+                        $account->save();
+                    } catch (QueryException $exception) {
+                    }
+                }
+            } else {
+                Log::critical(['user_id' => $user->id, 'username' => $user->name, 'loadAccountsFrom3CommasResponse' => $response['status'], 'message' => $response['response']]);
+                Pushover::push('loadAccountsFrom3CommasResponse', $response['response']);
                 Pushover::send();
             }
         }

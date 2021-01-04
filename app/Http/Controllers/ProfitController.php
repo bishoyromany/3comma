@@ -1,15 +1,19 @@
 <?php
 
 namespace App\Http\Controllers;
+
 use App\Deal;
+use App\Bot;
 use Auth;
 use DB;
+use App\Account;
 use Illuminate\Http\Request;
 
 class ProfitController extends Controller
 {
     //
-    function date() {
+    function date()
+    {
         $user = Auth::user();
 
         $data = array(
@@ -28,10 +32,11 @@ class ProfitController extends Controller
             $data['short'] = DB::select($this->buildBaseQuery($api_key, "Deal::ShortDeal"));
         }
 
-        return view('pages.profit.date',$data);
+        return view('pages.profit.date', $data);
     }
 
-    function pair() {
+    function pair()
+    {
         $user = Auth::user();
 
         $data = array(
@@ -50,10 +55,11 @@ class ProfitController extends Controller
             $data['short'] = DB::select($this->buildBaseQuery($api_key, "Deal::ShortDeal"));
         }
 
-        return view('pages.profit.pair',$data);
+        return view('pages.profit.pair', $data);
     }
 
-    function bot() {
+    function bot()
+    {
         $user = Auth::user();
 
         $data = array(
@@ -75,9 +81,12 @@ class ProfitController extends Controller
         return view('pages.profit.bot', $data);
     }
 
-    function getProfitByDate(Request $request) {
+    function getProfitByDate(Request $request)
+    {
         $base = $request->input('base');
         $pair = $request->input('pair');
+        $account = $request->input('account');
+        $bot = $request->input('bot');
         $strategy = $request->input('strategy');
         $start = $request->input('start');
         $end = $request->input('end');
@@ -103,7 +112,7 @@ class ProfitController extends Controller
         else
             $where = "";
 
-        if (!isset($pair)) {
+        if (!isset($pair) && !isset($account) && !isset($bot)) {
             $sql = "SELECT
                    'All Pairs' pair, $interval intval, SUM(final_profit) total_profit,
                    SUM(CASE WHEN deals.status in ('completed', 'panic_sold')
@@ -118,6 +127,12 @@ class ProfitController extends Controller
             GROUP BY $interval
             ORDER BY $interval ASC;";
         } else {
+            $p = isset($pair) ? "pair IN ('" . implode("','", $pair) . "')" : "";
+            $a = isset($account) ? "account_id IN ('" . implode("','", $account) . "')" : "";
+            $b = isset($bot) ? "bot_id IN ('" . implode("','", $bot) . "')" : "";
+            $and = (isset($pair) && isset($account)) ? "AND" : "";
+            $and1 = (isset($pair) && isset($bot)) || (isset($bot) && isset($account)) ? "AND" : "";
+
             $sql = "SELECT
                    pair, $interval intval, SUM(final_profit) total_profit,
                    SUM(CASE WHEN deals.status in ('completed', 'panic_sold')
@@ -126,7 +141,7 @@ class ProfitController extends Controller
                    END
                    ) as total_deals
             FROM deals
-            WHERE pair IN ('".implode("','", $pair)."') {$where} AND deals.api_key_id={$api_key} $range
+            WHERE $p $and $a $and1 $b {$where} AND deals.api_key_id={$api_key} $range
             AND status IN ('completed', 'stop_loss_finished' 'panic_sold', 'switched')
             AND `finished?` = 1
             GROUP BY pair, $interval
@@ -145,7 +160,8 @@ class ProfitController extends Controller
         return response()->json($report);
     }
 
-    function getPairByBase(Request $request) {
+    function getPairByBase(Request $request)
+    {
         $base = $request->input('base');
         $strategy = $request->input('strategy');
         $api_key = $request->input('api_key');
@@ -185,7 +201,8 @@ class ProfitController extends Controller
         return response()->json($profit);
     }
 
-    function getBotByBase(Request $request) {
+    function getBotByBase(Request $request)
+    {
         $base = $request->input('base');
         $strategy = $request->input('strategy');
         $api_key = $request->input('api_key');
@@ -214,7 +231,8 @@ class ProfitController extends Controller
         return response()->json($profit);
     }
 
-    function getBasePair(Request $request) {
+    function getBasePair(Request $request)
+    {
         $api_key = $request->input('api_key');
         $strategy = $request->input('strategy');
         $base = $request->input('base');
@@ -238,7 +256,25 @@ class ProfitController extends Controller
         return response()->json($pairs);
     }
 
-    function buildBaseQuery($api_key, $strategy, $type = "pair") {
+    function getAccounts(Request $request)
+    {
+        $base = $request->input('base');
+        $strategy = $request->input('strategy');
+        $api_key = $request->input('api_key');
+        return response()->json(Account::select("*")->where('api_key_id', '=', $api_key)->orderBy('id', 'DESC')->get());
+    }
+
+    function getBots(Request $request)
+    {
+        $base = $request->input('base');
+        $strategy = $request->input('strategy');
+        $api_key = $request->input('api_key');
+
+        return response()->json(Deal::bots($api_key));
+    }
+
+    function buildBaseQuery($api_key, $strategy, $type = "pair")
+    {
         if ($type == "pair") {
             if ($strategy == "both") {
                 $sql = "SELECT

@@ -18,7 +18,7 @@
 
         <div id="both" class="tab" style="display: block;">
             <div class="form-group">
-                <div class="form-group col-md-2">
+                <div class="form-group col-md-3">
                     <label>Base</label>
                     <select id="base_both" class="select2 base" style="width: 150px;">
                         @foreach($both as $item)
@@ -26,9 +26,17 @@
                         @endforeach
                     </select>
                 </div>
-                <div class="form-group col-md-4">
+                <div class="form-group col-md-3">
+                    <label>Accounts</label>
+                    <select id="account_both" class="select2 account" multiple="multiple" style="width: 300px;"></select>
+                </div>
+                <div class="form-group col-md-3">
                     <label>Pairs</label>
                     <select id="pair_both" class="select2 pair" multiple="multiple" style="width: 300px;"></select>
+                </div>
+                <div class="form-group col-md-3">
+                    <label>Bots</label>
+                    <select id="bot_both" class="select2 bot" multiple="multiple" style="width: 300px;"></select>
                 </div>
                 <div class="form-group col-md-3">
                     <div class="input-group">
@@ -206,6 +214,8 @@
         var rangeStartBoth, rangeEndBoth, rangeStartLong, rangeEndLong, rangeStartShort, rangeEndShort;
         var intervalBoth = intervalLong = intervalShort = "daily";
         var pairsBoth = pairsLong = pairsShort = [];
+        var botsBoth = botsLong = botsShort = [];
+        var accountsBoth = accountsLong = accountsShort = [];
         var baseBoth = baseLong = baseShort = "";
 
         function rowNum(data, type, row, meta) {
@@ -221,24 +231,32 @@
                 rangeStart = rangeStartBoth;
                 rangeEnd = rangeEndBoth;
                 base = baseBoth;
+                bots = botsBoth;
+                accounts = accountsBoth;
             } else if (dealType == "Deal") {
                 interval = intervalLong;
                 pairs = pairsLong;
                 rangeStart = rangeStartLong;
                 rangeEnd = rangeEndLong;
                 base = baseLong;
+                bots = botsLong;
+                accounts = accountsLong;
             } else if (dealType == "Deal::ShortDeal") {
                 interval = intervalShort;
                 pairs = pairsShort;
                 rangeStart = rangeStartShort;
                 rangeEnd = rangeEndShort;
                 base = baseShort;
+                bots = botsShort;
+                accounts = accountsShort;
             }
 
             $.post("{{ route('profit/getProfitByDate') }}", {
                 "_token" : "{{ csrf_token() }}",
                 "base" : base,
                 "pair" : pairs,
+                "account": accounts,
+                "bot": bots,
                 "strategy" : dealType,
                 "start" : rangeStart != null ? rangeStart.format('YYYY-MM-DD 00:00:00') : "",
                 "end" : rangeEnd != null ?  rangeEnd.format('YYYY-MM-DD 23:59:59') : "",
@@ -350,6 +368,60 @@
             });
         }
 
+        function updateAccounts(strategy, base) {
+            $.post("{{ route('profit/getAccounts') }}", {
+                "_token" : "{{ csrf_token() }}",
+                "base" : base,
+                "strategy" : strategy,
+                "api_key" : "{{ $api_key }}",
+            }, function (response) {
+                var pairId = "account_both";
+
+                if (strategy == "%") {
+                    pairId = "account_both";
+                    accountsBoth = [];
+                } else if (strategy == "Deal") {
+                    pairId = "account_long";
+                    accountsLong = [];
+                } else if (strategy == "Deal::ShortDeal") {
+                    pairId = "account_short";
+                    accountsShort = [];
+                }
+                $('#' + pairId).empty();
+                response.forEach(function (row, index) {
+                    $('#' + pairId).append('<option value="' + row.id + '">' + row.name + '</option>');
+                });
+                makeReport(strategy);
+            });
+        }
+
+        function updateBots(strategy, base) {
+            $.post("{{ route('profit/getBots') }}", {
+                "_token" : "{{ csrf_token() }}",
+                "base" : base,
+                "strategy" : strategy,
+                "api_key" : "{{ $api_key }}",
+            }, function (response) {
+                var pairId = "bot_both";
+
+                if (strategy == "%") {
+                    pairId = "bot_both";
+                    botsBoth = [];
+                } else if (strategy == "Deal") {
+                    pairId = "bot_long";
+                    botsLong = [];
+                } else if (strategy == "Deal::ShortDeal") {
+                    pairId = "bot_short";
+                    botsShort = [];
+                }
+                $('#' + pairId).empty();
+                response.forEach(function (row, index) {
+                    $('#' + pairId).append('<option value="' + row.id + '">' + row.name +  ' - ' + row.id + '</option>');
+                });
+                makeReport(strategy);
+            });
+        }
+
         $(function () {
             $tableBoth = $('#tbl_both').DataTable(columns);
             $tableLong = $('#tbl_long').DataTable(columns);
@@ -405,17 +477,53 @@
                 }
             });
 
+            $('.account').select2().on('change', function () {
+                strategy = $(this).attr('id').split("_")[1];
+                if (strategy == "long") {
+                    accountsLong = $(this).val();
+                    makeReport("Deal");
+                } else if (strategy == "short") {
+                    accountsShort = $(this).val();
+                    makeReport("Deal::ShortDeal");
+                } else {
+                    accountsBoth = $(this).val();
+                    makeReport("%");
+                }
+            });
+
+            $('.bot').select2().on('change', function () {
+                strategy = $(this).attr('id').split("_")[1];
+                if (strategy == "long") {
+                    botsLong = $(this).val();
+                    makeReport("Deal");
+                } else if (strategy == "short") {
+                    botsShort = $(this).val();
+                    makeReport("Deal::ShortDeal");
+                } else {
+                    botsBoth = $(this).val();
+                    makeReport("%");
+                }
+            });
+
+
+
             $('.base').select2().on('change', function () {
                 var strategy = $(this).attr('id').split("_")[1];
                 if (strategy == "long") {
                     baseLong = $(this).val();
                     updateBasePairs("Deal", baseLong);
+                    updateAccounts("Deal", baseLong);
+                    updateBots("Deal", baseLong);
                 } else if (strategy == "short") {
                     baseShort = $(this).val();
                     updateBasePairs("Deal::ShortDeal", baseShort);
+                    updateAccounts("Deal::ShortDeal", baseShort);
+                    updateBots("Deal::ShortDeal", baseLong);
                 } else {
                     baseBoth = $(this).val();
                     updateBasePairs("%", baseBoth);
+                    updateAccounts("%", baseBoth);
+                    updateBots("%", baseBoth);
                 }
             });
 

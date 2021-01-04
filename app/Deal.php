@@ -14,31 +14,55 @@ class Deal extends Model
         "closed_at", "bought_volume", "bought_amount", "from_currency", "to_currency", "from_currency_id", "to_currency_id", "sold_volume", "sold_amount",
         "cancellable?", "panic_sellable?", "bought_average_price", "take_profit_price", "current_price", "finished?", "failed_message", "completed_safety_orders_count",
         "completed_safety_orders_count", "current_active_safety_orders", "reserved_base_coin", "reserved_second_coin", "deal_has_error", "type", "base_order_volume_type",
-        "safety_order_volume_type"
+        "safety_order_volume_type", "api_key_id"
     ];
 
-    public function setCreatedAtAttribute($value) {
+    public static function bots($api_key_id): array
+    {
+        $bots = [];
+
+        self::select('bot_id', 'bot_name')->where('api_key_id', '=', $api_key_id)->get()->map(function($item) use(&$bots){
+            $bots[$item['bot_id']] = $item['bot_name']; 
+        });
+
+        $bts = [];
+
+        foreach($bots as $k=>$v){
+            $bts[] = [
+                'id' => $k,
+                'name' => $v
+            ];
+        }
+
+        return $bts;
+    }
+
+    public function setCreatedAtAttribute($value)
+    {
         if (isset($value)) {
             $time = strtotime($value);
             $this->attributes['created_at'] = date('Y-m-d H:i:s', $time);
         }
     }
 
-    public function setUpdatedAtAttribute($value) {
+    public function setUpdatedAtAttribute($value)
+    {
         if (isset($value)) {
             $time = strtotime($value);
             $this->attributes['updated_at'] = date('Y-m-d H:i:s', $time);
         }
     }
 
-    public function setClosedAtAttribute($value) {
+    public function setClosedAtAttribute($value)
+    {
         if (isset($value)) {
             $time = strtotime($value);
             $this->attributes['closed_at'] = date('Y-m-d H:i:s', $time);
         }
     }
 
-    public function bot() {
+    public function bot()
+    {
         return $this->hasOne('App\Bot');
     }
 }

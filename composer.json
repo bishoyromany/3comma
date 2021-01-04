@@ -10,7 +10,8 @@
         "guzzlehttp/guzzle": "~6.0",
         "josiasmontag/laravel-email-verification": "^1.2",
         "laravel/framework": "5.4.*",
-        "laravel/tinker": "~1.0"
+        "laravel/tinker": "~1.0",
+        "phpdocumentor/reflection-docblock": "^2.0"
     },
     "require-dev": {
         "fzaninotto/faker": "~1.4",
