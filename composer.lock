@@ -4,7 +4,7 @@
         "Read more about it at https://getcomposer.org/doc/01-basic-usage.md#installing-dependencies",
         "This file is @generated automatically"
     ],
-    "content-hash": "89960a0ae08969bbff41e3e9fe7aef6b",
+    "content-hash": "310b90f575e49970c6a62fcced4d73f8",
     "packages": [
         {
             "name": "dnoegel/php-xdg-base-dir",
@@ -1009,6 +1009,57 @@
                 }
             ],
             "time": "2020-10-18T11:50:25+00:00"
+        },
+        {
+            "name": "matviib/scheduler",
+            "version": "v1.0.4",
+            "source": {
+                "type": "git",
+                "url": "https://github.com/MatviiB/scheduler.git",
+                "reference": "ec3b6a76e82f3268b34b385eff617ab5c4a836f7"
+            },
+            "dist": {
+                "type": "zip",
+                "url": "https://api.github.com/repos/MatviiB/scheduler/zipball/ec3b6a76e82f3268b34b385eff617ab5c4a836f7",
+                "reference": "ec3b6a76e82f3268b34b385eff617ab5c4a836f7",
+                "shasum": ""
+            },
+            "type": "library",
+            "extra": {
+                "laravel": {
+                    "providers": [
+                        "MatviiB\\Scheduler\\SchedulerServiceProvider"
+                    ]
+                }
+            },
+            "autoload": {
+                "psr-4": {
+                    "MatviiB\\Scheduler\\": "src/"
+                }
+            },
+            "notification-url": "https://packagist.org/downloads/",
+            "license": [
+                "MIT"
+            ],
+            "authors": [
+                {
+                    "name": "Matvii Bondar",
+                    "email": "matvii.bondar@gmail.com"
+                }
+            ],
+            "description": "Service for scheduling and managing cron tasks in laravel application",
+            "keywords": [
+                "Tasks",
+                "cron",
+                "laravel",
+                "schedule",
+                "scheduler"
+            ],
+            "support": {
+                "issues": "https://github.com/MatviiB/scheduler/issues",
+                "source": "https://github.com/MatviiB/scheduler/tree/master"
+            },
+            "time": "2019-04-22T07:08:23+00:00"
         },
         {
             "name": "monolog/monolog",

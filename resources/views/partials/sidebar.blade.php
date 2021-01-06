@@ -73,8 +73,10 @@
                     </span>
                 </a>
                 <ul class="treeview-menu">
+                    <li class="{{ request()->is('scheduler') ? 'active' : '' }}"><a href="{{ route('scheduler.index') }}"><i class="fa fa-hand-peace-o"></i> Crons<small class="label pull-right bg-primary">New!</small></span></a></li>
                     <li class="{{ request()->is('3commas/loadDeal') ? 'active' : '' }}"><a href="{{ url('3commas/loadDeal') }}"><i class="fa fa-hand-peace-o"></i> Load Deals<small class="label pull-right bg-primary">New!</small></span></a></li>
                     <li class="{{ request()->is('3commas/loadBots') ? 'active' : '' }}"><a href="{{ url('3commas/loadBots') }}"><i class="fa fa-hand-peace-o"></i> Load Bots<small class="label pull-right bg-primary">New!</small></span></a></li>
+                    <li class="{{ request()->is('run/monitor') ? 'active' : '' }}"><a href="{{ route('run/monitor') }}"><i class="fa fa-hand-peace-o"></i> Run Monitor<small class="label pull-right bg-primary">New!</small></span></a></li>
                 </ul>
             </li>
         </ul><!-- /.sidebar-menu -->

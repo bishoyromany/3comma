@@ -35,6 +35,7 @@ return array(
     'Prophecy\\' => array($vendorDir . '/phpspec/prophecy/src/Prophecy'),
     'PhpParser\\' => array($vendorDir . '/nikic/php-parser/lib/PhpParser'),
     'Monolog\\' => array($vendorDir . '/monolog/monolog/src/Monolog'),
+    'MatviiB\\Scheduler\\' => array($vendorDir . '/matviib/scheduler/src'),
     'Lunaweb\\EmailVerification\\' => array($vendorDir . '/josiasmontag/laravel-email-verification/src'),
     'League\\MimeTypeDetection\\' => array($vendorDir . '/league/mime-type-detection/src'),
     'League\\Flysystem\\' => array($vendorDir . '/league/flysystem/src'),

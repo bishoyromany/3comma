@@ -4,7 +4,7 @@
 
 namespace Composer\Autoload;
 
-class ComposerStaticInit4a0d24561735073082fe9755484ff822
+class ComposerStaticInit0a6c3b8b95d541daf3fc24845d7b186e
 {
     public static $files = array (
         '0e6d7bf4a5811bfa5cf40c5ccd6fae6a' => __DIR__ . '/..' . '/symfony/polyfill-mbstring/bootstrap.php',
@@ -74,6 +74,7 @@ class ComposerStaticInit4a0d24561735073082fe9755484ff822
         'M' => 
         array (
             'Monolog\\' => 8,
+            'MatviiB\\Scheduler\\' => 18,
         ),
         'L' => 
         array (
@@ -236,6 +237,10 @@ class ComposerStaticInit4a0d24561735073082fe9755484ff822
         array (
             0 => __DIR__ . '/..' . '/monolog/monolog/src/Monolog',
         ),
+        'MatviiB\\Scheduler\\' => 
+        array (
+            0 => __DIR__ . '/..' . '/matviib/scheduler/src',
+        ),
         'Lunaweb\\EmailVerification\\' => 
         array (
             0 => __DIR__ . '/..' . '/josiasmontag/laravel-email-verification/src',
@@ -354,6 +359,7 @@ class ComposerStaticInit4a0d24561735073082fe9755484ff822
 
     public static $classMap = array (
         'AddAvatarToUsers' => __DIR__ . '/../..' . '/database/migrations/2018_09_29_163048_add_avatar_to_users.php',
+        'AddVerifiedToUserTable' => __DIR__ . '/../..' . '/database/migrations/2017_02_27_170020_add_verified_to_user_table.php',
         'App\\Account' => __DIR__ . '/../..' . '/app/Account.php',
         'App\\ApiKey' => __DIR__ . '/../..' . '/app/ApiKey.php',
         'App\\Api\\Controllers\\MailgunController' => __DIR__ . '/../..' . '/app/Api/Controllers/MailgunController.php',
@@ -414,6 +420,7 @@ class ComposerStaticInit4a0d24561735073082fe9755484ff822
         'CreateLoggingsTable' => __DIR__ . '/../..' . '/database/migrations/2018_10_21_161248_create_loggings_table.php',
         'CreatePasswordResetsTable' => __DIR__ . '/../..' . '/database/migrations/2014_10_12_100000_create_password_resets_table.php',
         'CreateSmartSwitchDualsTable' => __DIR__ . '/../..' . '/database/migrations/2018_10_16_224652_create_smart_switch_duals_table.php.php',
+        'CreateTableScheduler' => __DIR__ . '/../..' . '/database/migrations/2018_01_23_152108_create_table_scheduler.php',
         'CreateUsersTable' => __DIR__ . '/../..' . '/database/migrations/2013_09_22_000002_create_users_table.php',
         'Cron\\AbstractField' => __DIR__ . '/..' . '/mtdowling/cron-expression/src/Cron/AbstractField.php',
         'Cron\\CronExpression' => __DIR__ . '/..' . '/mtdowling/cron-expression/src/Cron/CronExpression.php',
@@ -1894,6 +1901,10 @@ class ComposerStaticInit4a0d24561735073082fe9755484ff822
         'Lunaweb\\EmailVerification\\Providers\\EmailVerificationServiceProvider' => __DIR__ . '/..' . '/josiasmontag/laravel-email-verification/src/Providers/EmailVerificationServiceProvider.php',
         'Lunaweb\\EmailVerification\\Traits\\CanVerifyEmail' => __DIR__ . '/..' . '/josiasmontag/laravel-email-verification/src/Traits/CanVerifyEmail.php',
         'Lunaweb\\EmailVerification\\Traits\\VerifiesEmail' => __DIR__ . '/..' . '/josiasmontag/laravel-email-verification/src/Traits/VerifiesEmail.php',
+        'MatviiB\\Scheduler\\Controllers\\SchedulerController' => __DIR__ . '/..' . '/matviib/scheduler/src/Controllers/SchedulerController.php',
+        'MatviiB\\Scheduler\\Monitor' => __DIR__ . '/..' . '/matviib/scheduler/src/Monitor.php',
+        'MatviiB\\Scheduler\\Scheduler' => __DIR__ . '/..' . '/matviib/scheduler/src/Scheduler.php',
+        'MatviiB\\Scheduler\\SchedulerServiceProvider' => __DIR__ . '/..' . '/matviib/scheduler/src/SchedulerServiceProvider.php',
         'Mockery' => __DIR__ . '/..' . '/mockery/mockery/library/Mockery.php',
         'Mockery\\Adapter\\Phpunit\\MockeryPHPUnitIntegration' => __DIR__ . '/..' . '/mockery/mockery/library/Mockery/Adapter/Phpunit/MockeryPHPUnitIntegration.php',
         'Mockery\\Adapter\\Phpunit\\MockeryTestCase' => __DIR__ . '/..' . '/mockery/mockery/library/Mockery/Adapter/Phpunit/MockeryTestCase.php',
@@ -3681,11 +3692,11 @@ class ComposerStaticInit4a0d24561735073082fe9755484ff822
     public static function getInitializer(ClassLoader $loader)
     {
         return \Closure::bind(function () use ($loader) {
-            $loader->prefixLengthsPsr4 = ComposerStaticInit4a0d24561735073082fe9755484ff822::$prefixLengthsPsr4;
-            $loader->prefixDirsPsr4 = ComposerStaticInit4a0d24561735073082fe9755484ff822::$prefixDirsPsr4;
-            $loader->fallbackDirsPsr4 = ComposerStaticInit4a0d24561735073082fe9755484ff822::$fallbackDirsPsr4;
-            $loader->prefixesPsr0 = ComposerStaticInit4a0d24561735073082fe9755484ff822::$prefixesPsr0;
-            $loader->classMap = ComposerStaticInit4a0d24561735073082fe9755484ff822::$classMap;
+            $loader->prefixLengthsPsr4 = ComposerStaticInit0a6c3b8b95d541daf3fc24845d7b186e::$prefixLengthsPsr4;
+            $loader->prefixDirsPsr4 = ComposerStaticInit0a6c3b8b95d541daf3fc24845d7b186e::$prefixDirsPsr4;
+            $loader->fallbackDirsPsr4 = ComposerStaticInit0a6c3b8b95d541daf3fc24845d7b186e::$fallbackDirsPsr4;
+            $loader->prefixesPsr0 = ComposerStaticInit0a6c3b8b95d541daf3fc24845d7b186e::$prefixesPsr0;
+            $loader->classMap = ComposerStaticInit0a6c3b8b95d541daf3fc24845d7b186e::$classMap;
 
         }, null, ClassLoader::class);
     }

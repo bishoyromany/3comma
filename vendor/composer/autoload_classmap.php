@@ -7,6 +7,7 @@ $baseDir = dirname($vendorDir);
 
 return array(
     'AddAvatarToUsers' => $baseDir . '/database/migrations/2018_09_29_163048_add_avatar_to_users.php',
+    'AddVerifiedToUserTable' => $baseDir . '/database/migrations/2017_02_27_170020_add_verified_to_user_table.php',
     'App\\Account' => $baseDir . '/app/Account.php',
     'App\\ApiKey' => $baseDir . '/app/ApiKey.php',
     'App\\Api\\Controllers\\MailgunController' => $baseDir . '/app/Api/Controllers/MailgunController.php',
@@ -67,6 +68,7 @@ return array(
     'CreateLoggingsTable' => $baseDir . '/database/migrations/2018_10_21_161248_create_loggings_table.php',
     'CreatePasswordResetsTable' => $baseDir . '/database/migrations/2014_10_12_100000_create_password_resets_table.php',
     'CreateSmartSwitchDualsTable' => $baseDir . '/database/migrations/2018_10_16_224652_create_smart_switch_duals_table.php.php',
+    'CreateTableScheduler' => $baseDir . '/database/migrations/2018_01_23_152108_create_table_scheduler.php',
     'CreateUsersTable' => $baseDir . '/database/migrations/2013_09_22_000002_create_users_table.php',
     'Cron\\AbstractField' => $vendorDir . '/mtdowling/cron-expression/src/Cron/AbstractField.php',
     'Cron\\CronExpression' => $vendorDir . '/mtdowling/cron-expression/src/Cron/CronExpression.php',
@@ -1547,6 +1549,10 @@ return array(
     'Lunaweb\\EmailVerification\\Providers\\EmailVerificationServiceProvider' => $vendorDir . '/josiasmontag/laravel-email-verification/src/Providers/EmailVerificationServiceProvider.php',
     'Lunaweb\\EmailVerification\\Traits\\CanVerifyEmail' => $vendorDir . '/josiasmontag/laravel-email-verification/src/Traits/CanVerifyEmail.php',
     'Lunaweb\\EmailVerification\\Traits\\VerifiesEmail' => $vendorDir . '/josiasmontag/laravel-email-verification/src/Traits/VerifiesEmail.php',
+    'MatviiB\\Scheduler\\Controllers\\SchedulerController' => $vendorDir . '/matviib/scheduler/src/Controllers/SchedulerController.php',
+    'MatviiB\\Scheduler\\Monitor' => $vendorDir . '/matviib/scheduler/src/Monitor.php',
+    'MatviiB\\Scheduler\\Scheduler' => $vendorDir . '/matviib/scheduler/src/Scheduler.php',
+    'MatviiB\\Scheduler\\SchedulerServiceProvider' => $vendorDir . '/matviib/scheduler/src/SchedulerServiceProvider.php',
     'Mockery' => $vendorDir . '/mockery/mockery/library/Mockery.php',
     'Mockery\\Adapter\\Phpunit\\MockeryPHPUnitIntegration' => $vendorDir . '/mockery/mockery/library/Mockery/Adapter/Phpunit/MockeryPHPUnitIntegration.php',
     'Mockery\\Adapter\\Phpunit\\MockeryTestCase' => $vendorDir . '/mockery/mockery/library/Mockery/Adapter/Phpunit/MockeryTestCase.php',

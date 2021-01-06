@@ -23,7 +23,7 @@ Route::get('/', function () {
 });
 
 Route::group(['middleware' => ['web', 'auth', /*'isEmailVerified'*/]], function () {
-     Route::get('/dashboard', 'DashboardController@index');
+     Route::get('/dashboard', 'DashboardController@index')->name("dashboard");
      Route::get('/dashboard/data', 'DashboardController@data')->name('dashboard/data');
      Route::post('/dashboard/soSum', 'DashboardController@soSum')->name('dashboard/soSum');
 
@@ -81,4 +81,24 @@ Route::group(['middleware' => ['web', 'auth', /*'isEmailVerified'*/]], function 
      Route::get('/smartswitch/dual/{smart_switch_dual}', 'SmartSwitchDualController@show')
           ->name('smartswitch.dual.show')
           ->where('id', '[0-9]+');
+
+
+     $name = 'scheduler';
+     Route::get('/scheduler', "SchedulerController@index")->name("$name.index");
+
+     Route::get("/scheduler/edit/{task}", "SchedulerController@edit")->name("$name.edit");
+
+     Route::patch("/scheduler/update/{task}", "SchedulerController@update")->name("$name.update");
+
+     Route::get("/scheduler/toggle/{task}", "SchedulerController@toggle")->name("$name.toggle");
+
+     Route::get("/scheduler/run/{task}", "SchedulerController@run")->name("$name.run");
+
+     Route::get("/scheduler/create", "SchedulerController@create")->name("$name.create");
+
+     Route::post("/scheduler/store", "SchedulerController@store")->name("$name.store");
+
+     Route::delete("/scheduler/delete", "SchedulerController@delete")->name("$name.delete");
 });
+
+Route::get('/run/monitor', 'Monitor@index')->name("monitor");

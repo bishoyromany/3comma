@@ -13,6 +13,7 @@ use Illuminate\Database\QueryException;
 use Illuminate\Database\Eloquent\ModelNotFoundException;
 use Dyaa\Pushover\Facades\Pushover;
 use Illuminate\Http\Request;
+use App\User;
 
 class ThreeCommasController extends Controller
 {
@@ -29,40 +30,44 @@ class ThreeCommasController extends Controller
 
     public function loadDealFrom3Commas(Request $request)
     {
-        $user = Auth::user();
-        if (sizeof($user->api_keys) > 0) {
-            $limit = $request->limit ?? 10000;
-            $offset = $request->offset ?? 0;
-            do {
-                $response = $this->user_deals($user->api_keys[0], $limit, $offset);
-                if ($response['status'] != 200 && !env("APP_DEBUG") && $this->DEBUG_MODE) {
-                    Log::critical(['user_id' => $user->id, 'username' => $user->name, 'loadDealFrom3CommasResponse' => $response['status'], 'message' => $response['response']]);
-                    Pushover::push('loadDealFrom3CommasResponse', $response['response']);
-                    Pushover::send();
-                    break;
-                } else {
-                    if ($response['status'] != 200 && env("APP_DEBUG") && $this->DEBUG_MODE) {
-                        $data = json_decode(file_get_contents(public_path() . '/../tmp/deals.json'));
+        $users = User::all();
+        foreach ($users as $user) {
+            if (sizeof($user->api_keys) > 0) {
+                $limit = $request->limit ?? 10000;
+                $offset = $request->offset ?? 0;
+                do {
+                    $response = $this->user_deals($user->api_keys[0], $limit, $offset);
+                    if ($response['status'] != 200 && !env("APP_DEBUG") && $this->DEBUG_MODE) {
+                        Log::critical(['user_id' => $user->id, 'username' => $user->name, 'loadDealFrom3CommasResponse' => $response['status'], 'message' => $response['response']]);
+                        Pushover::push('loadDealFrom3CommasResponse', $response['response']);
+                        Pushover::send();
+                        break;
                     } else {
-                        $data = $response['response'];
-                    }
-                    foreach ($data as $json) {
-                        try {
-                            try {
-                                $deal = Deal::findOrFail($json->id);
-                            } catch (ModelNotFoundException $e) {
-                                $deal = new Deal();
-                            }
-                            $deal->fill((array)$json);
-                            $deal->api_key_id = $user->api_keys[0]['id'];
-                            $deal->save();
-                        } catch (QueryException $exception) {
+                        if ($response['status'] != 200 && env("APP_DEBUG") && $this->DEBUG_MODE) {
+                            $data = json_decode(file_get_contents(public_path() . '/../tmp/deals.json'));
+                        } else {
+                            $data = $response['response'];
                         }
+                        foreach ($data as $json) {
+                            try {
+                                try {
+                                    $deal = Deal::findOrFail($json->id);
+                                } catch (ModelNotFoundException $e) {
+                                    $deal = new Deal();
+                                }
+                                $deal->fill((array)$json);
+                                $deal->api_key_id = $user->api_keys[0]['id'];
+                                $deal->save();
+                            } catch (QueryException $exception) {
+                            } catch (\Exception $e) {
+                                dd($e, $data, $json);
+                            }
+                        }
+                        $loaded = count($data);
+                        $offset += count($data);
                     }
-                    $loaded = count($data);
-                    $offset += count($data);
-                }
-            } while ($loaded == $limit);
+                } while ($loaded == $limit);
+            }
         }
 
         echo 'succeed';
@@ -70,65 +75,72 @@ class ThreeCommasController extends Controller
 
     public function loadBotsFrom3Commas()
     {
-        $user = Auth::user();
-        if (sizeof($user->api_keys) > 0) {
-            $response = $this->user_bots($user->api_keys[0]);
-            if ($response['status'] == 200) {
-                $data = $response['response'];
-                foreach ($data as $json) {
-                    try {
+        $users = User::all();
+        foreach ($users as $user) {
+            if (sizeof($user->api_keys) > 0) {
+                $response = $this->user_bots($user->api_keys[0]);
+                if ($response['status'] == 200) {
+                    $data = $response['response'];
+                    foreach ($data as $json) {
                         try {
-                            $bot = Bot::findOrFail($json->id);
-                        } catch (ModelNotFoundException $e) {
-                            $bot = new Bot();
+                            try {
+                                $bot = Bot::findOrFail($json->id);
+                            } catch (ModelNotFoundException $e) {
+                                $bot = new Bot();
+                            } catch (\Exception $e) {
+                                dd($e, $data, $json);
+                            }
+                            $bot->fill((array)$json);
+                            $bot->api_key_id = $user->api_keys[0]['id'];
+                            $bot->save();
+                        } catch (QueryException $exception) {
                         }
-                        $bot->fill((array)$json);
-                        $bot->api_key_id = $user->api_keys[0]['id'];
-                        $bot->save();
-                    } catch (QueryException $exception) {
                     }
+                } else {
+                    Log::critical(['user_id' => $user->id, 'username' => $user->name, 'loadBotsFrom3CommasResponse' => $response['status'], 'message' => $response['response']]);
+                    Pushover::push('loadBotsFrom3CommasResponse', $response['response']);
+                    Pushover::send();
                 }
-            } else {
-                Log::critical(['user_id' => $user->id, 'username' => $user->name, 'loadBotsFrom3CommasResponse' => $response['status'], 'message' => $response['response']]);
-                Pushover::push('loadBotsFrom3CommasResponse', $response['response']);
-                Pushover::send();
             }
         }
-
         echo 'succeed';
     }
 
     public function loadAccountsFrom3Commas()
     {
-        $user = Auth::user();
-        if (sizeof($user->api_keys) > 0) {
-            $response = $this->all_accounts($user->api_keys[0]);
-            if ($response['status'] == 200) {
-                $data = $response['response'];
-                foreach ($data as $json) {
-                    try {
+        $users = User::all();
+        foreach ($users as $user) {
+            if (sizeof($user->api_keys) > 0) {
+                $response = $this->all_accounts($user->api_keys[0]);
+                if ($response['status'] == 200) {
+                    $data = $response['response'];
+                    foreach ($data as $json) {
                         try {
-                            $account = Account::findOrFail($json->id);
-                        } catch (ModelNotFoundException $e) {
-                            $account = new Account();
+                            try {
+                                $account = Account::findOrFail($json->id);
+                            } catch (ModelNotFoundException $e) {
+                                $account = new Account();
+                            } catch (\Exception $e) {
+                                dd($e, $data, $json);
+                            }
+                            $account->fill(
+                                [
+                                    'account' => (array)$json,
+                                    'user_id' => $user->id,
+                                    'name'    => $json->name,
+                                    'id'      => $json->id
+                                ]
+                            );
+                            $account->api_key_id = $user->api_keys[0]['id'];
+                            $account->save();
+                        } catch (QueryException $exception) {
                         }
-                        $account->fill(
-                            [
-                                'account' => (array)$json,
-                                'user_id' => $user->id,
-                                'name'    => $json->name,
-                                'id'      => $json->id
-                            ]
-                        );
-                        $account->api_key_id = $user->api_keys[0]['id'];
-                        $account->save();
-                    } catch (QueryException $exception) {
                     }
+                } else {
+                    Log::critical(['user_id' => $user->id, 'username' => $user->name, 'loadAccountsFrom3CommasResponse' => $response['status'], 'message' => $response['response']]);
+                    Pushover::push('loadAccountsFrom3CommasResponse', $response['response']);
+                    Pushover::send();
                 }
-            } else {
-                Log::critical(['user_id' => $user->id, 'username' => $user->name, 'loadAccountsFrom3CommasResponse' => $response['status'], 'message' => $response['response']]);
-                Pushover::push('loadAccountsFrom3CommasResponse', $response['response']);
-                Pushover::send();
             }
         }
 

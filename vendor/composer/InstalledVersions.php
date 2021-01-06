@@ -29,7 +29,7 @@ private static $installed = array (
     'aliases' => 
     array (
     ),
-    'reference' => 'a3cd9d1970d93cda7a29652740e8446142510455',
+    'reference' => 'a9160d02af03ad0bc9ce4465831b021476498f40',
     'name' => 'laravel/laravel',
   ),
   'versions' => 
@@ -400,7 +400,7 @@ private static $installed = array (
       'aliases' => 
       array (
       ),
-      'reference' => 'a3cd9d1970d93cda7a29652740e8446142510455',
+      'reference' => 'a9160d02af03ad0bc9ce4465831b021476498f40',
     ),
     'laravel/tinker' => 
     array (
@@ -428,6 +428,15 @@ private static $installed = array (
       array (
       ),
       'reference' => '353f66d7555d8a90781f6f5e7091932f9a4250aa',
+    ),
+    'matviib/scheduler' => 
+    array (
+      'pretty_version' => 'v1.0.4',
+      'version' => '1.0.4.0',
+      'aliases' => 
+      array (
+      ),
+      'reference' => 'ec3b6a76e82f3268b34b385eff617ab5c4a836f7',
     ),
     'mockery/mockery' => 
     array (
