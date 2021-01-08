@@ -39,10 +39,9 @@ class DealController extends Controller
 
             return view('pages.deal.list', $data);
         }
+    }
 
-     }
-
-     public function show($id)
+    public function show($id)
     {
         $deal = Deal::findOrFail($id);
 

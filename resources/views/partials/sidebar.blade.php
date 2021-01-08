@@ -90,6 +90,7 @@
                     <li class="{{ request()->is('3commas/loadDeal') ? 'active' : '' }}"><a href="{{ url('3commas/loadDeal') }}"><i class="fa fa-hand-peace-o"></i> Load Deals<small class="label pull-right bg-primary">New!</small></span></a></li>
                     <li class="{{ request()->is('3commas/loadBots') ? 'active' : '' }}"><a href="{{ url('3commas/loadBots') }}"><i class="fa fa-hand-peace-o"></i> Load Bots<small class="label pull-right bg-primary">New!</small></span></a></li>
                     <li class="{{ request()->is('3commas/loadAccounts') ? 'active' : '' }}"><a href="{{ url('3commas/loadAccounts') }}"><i class="fa fa-hand-peace-o"></i> Load Accounts<small class="label pull-right bg-primary">New!</small></span></a></li>
+                    <li class="{{ request()->is('3commas/parisBlackList') ? 'active' : '' }}"><a href="{{ url('3commas/parisBlackList') }}"><i class="fa fa-hand-peace-o"></i> Paris Black List<small class="label pull-right bg-primary">New!</small></span></a></li>
                     <li class="{{ request()->is('run/monitor') ? 'active' : '' }}"><a href="{{ url('run/monitor') }}"><i class="fa fa-hand-peace-o"></i> Run Monitor<small class="label pull-right bg-primary">New!</small></span></a></li>
                     <li class="{{ request()->is('stop/monitor') ? 'active' : '' }}"><a href="{{ url('stop/monitor') }}"><i class="fa fa-hand-peace-o"></i> Stop Monitor<small class="label pull-right bg-primary">New!</small></span></a></li>
                 </ul>

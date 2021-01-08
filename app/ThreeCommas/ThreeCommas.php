@@ -206,4 +206,14 @@ trait ThreeCommas
     {
         return $this->requestThreeCommas($key, 'deal_update_tp', ['deal_id' => $deal_id, 'new_take_profit_percentage' => $new_take_profit_percentage], ['deal_id' => $deal_id]);
     }
+
+    public function pairs_black_list($key)
+    {
+        return $this->requestThreeCommas($key, 'pairs_black_list');
+    }
+
+    public function update_pairs_black_list($key, $paris)
+    {
+        return $this->requestThreeCommas($key, 'update_pairs_black_list', ['paris' => $paris], ['paris' => $paris]);
+    }
 }

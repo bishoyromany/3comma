@@ -9,6 +9,8 @@ use DB;
 use App\Account;
 use Illuminate\Http\Request;
 use App\Http\Controllers\Traits\Helper;
+use App\Http\Controllers\ThreeCommasController;
+use App\PairsBlackList;
 
 class ProfitController extends Controller
 {
@@ -251,8 +253,17 @@ class ProfitController extends Controller
             ORDER BY total_profit DESC;";
 
         $profit = DB::select($sql);
-
-        return response()->json($profit);
+        $blackList = PairsBlackList::where('api_key', '=', $api_key)->get()[0]->pairs ?? [];
+        $profits = [];
+        foreach ($profit as $pr) {
+            $button = '<button class="btn btn-danger">Black List</button>';
+            if (in_array($pr->pair, $blackList)) {
+                $button = '<button class="btn btn-danger">unBlack List</button>';
+            }
+            $pr->actions = '<form method="POST" action="' . route("3commas/updateParisBlackList") . '"><input type="hidden" name="pairs" value=\'' . json_encode([$pr->pair]) . '\' />' . $button . ' <input type="hidden" name="_token" value="' . csrf_token() . '" /></form>';
+            $profits[] = $pr;
+        }
+        return response()->json($profits);
     }
 
     function getBotByBase(Request $request)

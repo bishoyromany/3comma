@@ -129,7 +129,8 @@
                 { "title": "#", "data": "number" },
                 { "title": "Pair", "data": "pair" },
                 { "title": "Total Deals", "data": "total_deals" },
-                { "title": "Total Profit", "data": "total_profit" }
+                { "title": "Total Profit", "data": "total_profit" },
+                { "title": "Actions", "data": "actions" }
             ],
             "columnDefs": [ {
                 "targets": 0,

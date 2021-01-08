@@ -14,6 +14,7 @@ use Illuminate\Database\Eloquent\ModelNotFoundException;
 use Dyaa\Pushover\Facades\Pushover;
 use Illuminate\Http\Request;
 use App\User;
+use App\PairsBlackList;
 
 class ThreeCommasController extends Controller
 {
@@ -255,6 +256,68 @@ class ThreeCommasController extends Controller
             } else {
                 Log::critical(['user_id' => $user->id, 'username' => $user->name, 'startNewDealResponse' => $response['status'], 'message' => $response['response']]);
                 Pushover::push('startNewDealResponse', $response['response']);
+                Pushover::send();
+            }
+        }
+
+        echo 'succeed';
+    }
+
+    public function parisBlackList($array = false)
+    {
+        $user = Auth::user();
+
+        if (sizeof($user->api_keys) > 0) {
+            $response = $this->pairs_black_list($user->api_keys[0]);
+            if ($response['status'] == 200) {
+                $data = $response['response'];
+
+                $pairs = PairsBlackList::where('api_key', '=', $user->api_keys[0])->get()[0] ?? false;
+                $pairsStore = [
+                    'user_id' => $user->id,
+                    'api_key' => $user->api_keys[0]->id,
+                    'pairs'   => $data->pairs
+                ];
+
+                if ($pairs) {
+                    $pairs->update($pairsStore);
+                } else {
+                    $pairs = PairsBlackList::create($pairsStore);
+                }
+
+                if (!$array) {
+                    return response()->json($data);
+                } else {
+                    return $data;
+                }
+            } else {
+                Log::critical(['user_id' => $user->id, 'username' => $user->name, 'parisBlackList' => $response['status'], 'message' => $response['response']]);
+                Pushover::push('parisBlackList', $response['response']);
+                Pushover::send();
+            }
+        }
+
+        echo 'succeed';
+    }
+
+
+    public function updateParisBlackList(Request $request)
+    {
+        if ($request->pairs) {
+            $request->merge(['pairs' => json_decode($request->pairs)]);
+        }
+        $this->parisBlackList();
+        $user = Auth::user();
+        $pairs = $request->pairs;
+        if (sizeof($user->api_keys) > 0 && $pairs && is_array($pairs)) {
+            $response = $this->update_pairs_black_list($user->api_keys[0], $pairs);
+            if ($response['status'] == 200) {
+                $data = $response['response'];
+                $this->parisBlackList();
+                return response()->json($data);
+            } else {
+                Log::critical(['user_id' => $user->id, 'username' => $user->name, 'updateParisBlackList' => $response['status'], 'message' => $response['response']]);
+                Pushover::push('updateParisBlackList', $response['response']);
                 Pushover::send();
             }
         }
