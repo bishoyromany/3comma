@@ -48,7 +48,9 @@
   <div class="col-sm-12 col-md-12">
     <div class="box box-primary">
       <div class="box-header">
-        <h3 class="box-title">Total Profits</h3>
+        <h3 class="box-title">
+          Total Profits
+        </h3>
       </div>
       <div class="box-body table-responsive no-padding">
         <table id="tbl_dashboard" class="table table-bordered table-striped table-hover-blue">
@@ -100,6 +102,49 @@
           </tbody>
         </table>
       </div>
+    </div>
+  </div>
+</div>
+
+<div class="row">
+  <div class="col-sm-12 col-md-12">
+    <div class="box box-primary">
+      <div class="box-header">
+        <h3 class="box-title">Total Profits</h3>
+      </div>
+
+        <div class="form-group" style="margin-top: 15px;">
+            <div class="form-group col-md-3">
+                <label>Accounts</label>
+                <select id="accountProfit" class="select2 accountProfit" multiple="multiple" style="width: 300px;"></select>
+            </div>
+
+            <div class="form-group col-md-3">
+                <label>Strategy</label>
+                <select id="planProfit" class="select2 planProfit" style="width: 300px;">
+                  <option value="both">Both</option>
+                  <option value="Deal">Long</option>
+                  <option value="Deal::ShortDeal">Short</option>
+                </select>
+            </div>
+
+
+            <div class="form-group col-md-3">
+                <div class="input-group">
+                    <button type="button" class="btn btn-default form-control pull-right daterangeProfit" id="daterangeProfit">
+                <span>
+                  <i class="fa fa-calendar"></i> Please select date range
+                </span>
+                        <i class="fa fa-caret-down"></i>
+                    </button>
+                </div>
+            </div>
+            <div class="col-md-6"></div>
+        </div>
+        <div style="clear:both;"></div>
+        <div style="padding: 10px;">
+          <table id ="tblProfit" class="table table-bordered table-striped table-hover-blue"></table>
+        </div>
     </div>
   </div>
 </div>
@@ -341,6 +386,21 @@
         } ]
     };
 
+    var columnsProfit = {
+        "columns": [
+            { "title": "Currency", "data": "base" },
+            { "title": "Profit", "data": "profit" },
+            { "title": "Pairs", "data": "unique" },
+            { "title": "Completed", "data": "completed" },
+            { "title": "Panics", "data": "panic" },
+            { "title": "Stops", "data": "stop" },
+            { "title": "Switched", "data": "switched" },
+            { "title": "Failed", "data": "failed" },
+            { "title": "Cancelled", "data": "cancelled" },
+            { "title": "Deals", "data": "actual" },
+        ]
+    };
+
     var rangePickerOptions = {
         opens: "right",
         ranges   : {
@@ -355,23 +415,30 @@
         endDate  : moment()
     };
 
+    var soURL = "{{ route('dashboard/soSum') }}";
+    var profitURL = "{{ route('dashboard/profit') }}";
     var rangeStart, rangeEnd;
     var accounts = [];
+    var rangeStartProfit, rangeEndProfit;
+    var accountsProfit = [];
+    var palnProfit = [];
 
-    function makeReport() {
+    function makeReport(url, acc, plan, rs, re, t) {
       $('.overlay').show();
-      $.post("{{ route('dashboard/soSum') }}", {
+      $.post(url, {
           "_token" : "{{ csrf_token() }}",
-          "account": accounts,
-          "start" : rangeStart != null ? rangeStart.format('YYYY-MM-DD 00:00:00') : "",
-          "end" : rangeEnd != null ?  rangeEnd.format('YYYY-MM-DD 23:59:59') : "",
+          "account": acc,
+          "plan": plan,
+          "start" : rs != null ? rs.format('YYYY-MM-DD 00:00:00') : "",
+          "end" : re != null ?  re.format('YYYY-MM-DD 23:59:59') : "",
           "api_key" : "{{ $api_key }}",
       }, function (response) {
-            response = response.so;
-              $table.clear();
-              $table.rows.add(response);
-              $table.draw();
-
+            if(response.so){
+              response = response.so;
+            }
+              t.clear();
+              t.rows.add(response);
+              t.draw();
               $('.overlay').hide();
       });
     }
@@ -390,24 +457,44 @@
             $('#' + pairId).empty();
             response.forEach(function (row, index) {
                 $('#' + pairId).append('<option value="' + row.id + '">' + row.name + '</option>');
+                $('#accountProfit').append('<option value="' + row.id + '">' + row.name + '</option>');
             });
-            makeReport();
+            makeReport(soURL, accounts, 'both', rangeStart, rangeEnd, $table);
+            makeReport(profitURL, accountsProfit, palnProfit, rangeStartProfit, rangeEndProfit, $tableProfit);
         });
     }
 
 
     $(function () {
             $table = $('#tbl').DataTable(columns);
+            // profit
+            $tableProfit = $('#tblProfit').DataTable(columnsProfit);
 
             $('#daterange').daterangepicker(rangePickerOptions, function (start, end) {
                 $('#daterange span').html(start.format('MMMM D, YYYY') + ' - ' + end.format('MMMM D, YYYY'));
                 rangeStart = start; rangeEnd = end;
-                makeReport();
+                makeReport(soURL, accounts, 'both', rangeStart, rangeEnd, $table);
+            });
+            // profit
+            $('#daterangeProfit').daterangepicker(rangePickerOptions, function (start, end) {
+                $('#daterangeProfit span').html(start.format('MMMM D, YYYY') + ' - ' + end.format('MMMM D, YYYY'));
+                rangeStartProfit = start; rangeEndProfit = end;
+                makeReport(profitURL, accountsProfit, palnProfit, rangeStartProfit, rangeEndProfit, $tableProfit);
             });
 
             $('.account').select2().on('change', function () {
                 accounts = $(this).val();
-                makeReport();
+                makeReport(soURL, accounts, 'both', rangeStart, rangeEnd, $table);
+            });
+
+            // profit
+            $('.accountProfit').select2().on('change', function () {
+                accountsProfit = $(this).val();
+                makeReport(profitURL, accountsProfit, palnProfit, rangeStartProfit, rangeEndProfit, $tableProfit);
+            });
+            $('.planProfit').select2().on('change', function () {
+                palnProfit = $(this).val();
+                makeReport(profitURL, accountsProfit, palnProfit, rangeStartProfit, rangeEndProfit, $tableProfit);
             });
 
             updateAccounts();

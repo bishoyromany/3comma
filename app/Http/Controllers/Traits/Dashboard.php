@@ -381,4 +381,391 @@ trait Dashboard
             'sum' => $sum,
         ];
     }
+
+    public function getProfit($request)
+    {
+        $data = [];
+        $user = auth()->user();
+        $api = $this->api_key();
+        $api_key = $api['key'];
+        $parent = $api['parent'];
+        $account = $request->account;
+        $plan = $request->plan ?? "both";
+        $dates = [$request->start, $request->end];
+
+
+        $bases = DB::table('deals')
+            ->select(DB::raw('SUBSTRING_INDEX(pair, "_", 1) base'))
+            ->where('api_key_id', $api_key)
+            ->where(function ($query) use ($user, $parent) {
+                if ($parent) {
+                    return $query->whereIn("account_id", $user->accounts);
+                }
+                return $query;
+            })
+            ->whereNotNull('pair')
+            ->groupBy('base')
+            ->get();
+
+        $total_completed  = 0;
+        $total_panic = 0;
+        $total_stop = 0;
+        $total_switched = 0;
+        $total_failed = 0;
+        $total_cancelled = 0;
+        $total_actual = 0;
+
+        foreach ($bases as $base) {
+            $base_pair = $base->base . "_%";
+            $base_profit = DB::table('deals')
+                ->where('api_key_id', $api_key)
+                ->where('finished?', 1)
+                ->where('pair', 'LIKE', $base_pair)
+                ->where(function ($query) use ($account) {
+                    if (!empty($account)) {
+                        return $query->whereIn('account_id', $account);
+                    }
+                    return $query;
+                })->where(function ($query) use ($dates) {
+                    if ($dates[0] && $dates[1]) {
+                        return $query->whereBetween("created_at", $dates);
+                    }
+
+                    return $query;
+                })
+                ->where(function ($query) use ($plan) {
+                    if (!empty($plan) && $plan != "both") {
+                        return $query->where('type', '=', $plan);
+                    }
+                    return $query;
+                })
+                ->whereIn('status', ['completed', 'panic_sold', 'stop_loss_finished'])
+                ->where(function ($query) use ($user, $parent) {
+                    if ($parent) {
+                        return $query->whereIn("account_id", $user->accounts);
+                    }
+                    return $query;
+                })
+                ->sum('final_profit');
+
+
+            $base_deals = DB::table('deals')
+                ->where('api_key_id', $api_key)
+                ->where('finished?', 1)
+                ->where('pair', 'LIKE', $base_pair)
+                ->whereIn('status', ['completed', 'panic_sold', 'stop_loss_finished'])
+                ->where(function ($query) use ($account) {
+                    if (!empty($account)) {
+                        return $query->whereIn('account_id', $account);
+                    }
+                    return $query;
+                })->where(function ($query) use ($dates) {
+                    if ($dates[0] && $dates[1]) {
+                        return $query->whereBetween("created_at", $dates);
+                    }
+
+                    return $query;
+                })
+                ->where(function ($query) use ($plan) {
+                    if (!empty($plan) && $plan != "both") {
+                        return $query->where('type', '=', $plan);
+                    }
+                    return $query;
+                })
+                ->where(function ($query) use ($user, $parent) {
+                    if ($parent) {
+                        return $query->whereIn("account_id", $user->accounts);
+                    }
+                    return $query;
+                })
+                ->count();
+
+            $base_completed = DB::table('deals')
+                ->where('api_key_id', $api_key)
+                ->where('finished?', 1)
+                ->where('pair', 'LIKE', $base_pair)
+                ->whereIn('status', ['completed'])
+                ->where(function ($query) use ($account) {
+                    if (!empty($account)) {
+                        return $query->whereIn('account_id', $account);
+                    }
+                    return $query;
+                })->where(function ($query) use ($dates) {
+                    if ($dates[0] && $dates[1]) {
+                        return $query->whereBetween("created_at", $dates);
+                    }
+
+                    return $query;
+                })
+                ->where(function ($query) use ($plan) {
+                    if (!empty($plan) && $plan != "both") {
+                        return $query->where('type', '=', $plan);
+                    }
+                    return $query;
+                })
+                ->where(function ($query) use ($user, $parent) {
+                    if ($parent) {
+                        return $query->whereIn("account_id", $user->accounts);
+                    }
+                    return $query;
+                })
+                ->count();
+
+            $base_panic = DB::table('deals')
+                ->where('api_key_id', $api_key)
+                ->where('finished?', 1)
+                ->where('pair', 'LIKE', $base_pair)
+                ->whereIn('status', ['panic_sold'])
+                ->where(function ($query) use ($account) {
+                    if (!empty($account)) {
+                        return $query->whereIn('account_id', $account);
+                    }
+                    return $query;
+                })->where(function ($query) use ($dates) {
+                    if ($dates[0] && $dates[1]) {
+                        return $query->whereBetween("created_at", $dates);
+                    }
+
+                    return $query;
+                })
+                ->where(function ($query) use ($plan) {
+                    if (!empty($plan) && $plan != "both") {
+                        return $query->where('type', '=', $plan);
+                    }
+                    return $query;
+                })
+                ->where(function ($query) use ($user, $parent) {
+                    if ($parent) {
+                        return $query->whereIn("account_id", $user->accounts);
+                    }
+                    return $query;
+                })
+                ->count();
+
+            $base_stop = DB::table('deals')
+                ->where('api_key_id', $api_key)
+                ->where('finished?', 1)
+                ->where('pair', 'LIKE', $base_pair)
+                ->where(function ($query) use ($account) {
+                    if (!empty($account)) {
+                        return $query->whereIn('account_id', $account);
+                    }
+                    return $query;
+                })->where(function ($query) use ($dates) {
+                    if ($dates[0] && $dates[1]) {
+                        return $query->whereBetween("created_at", $dates);
+                    }
+
+                    return $query;
+                })
+                ->where(function ($query) use ($plan) {
+                    if (!empty($plan) && $plan != "both") {
+                        return $query->where('type', '=', $plan);
+                    }
+                    return $query;
+                })
+                ->whereIn('status', ['stop_loss_finished'])
+                ->where(function ($query) use ($user, $parent) {
+                    if ($parent) {
+                        return $query->whereIn("account_id", $user->accounts);
+                    }
+                    return $query;
+                })
+                ->count();
+
+            $base_switched = DB::table('deals')
+                ->where('api_key_id', $api_key)
+                ->where('finished?', 1)
+                ->where('pair', 'LIKE', $base_pair)
+                ->whereIn('status', ['switched'])
+                ->where(function ($query) use ($account) {
+                    if (!empty($account)) {
+                        return $query->whereIn('account_id', $account);
+                    }
+                    return $query;
+                })->where(function ($query) use ($dates) {
+                    if ($dates[0] && $dates[1]) {
+                        return $query->whereBetween("created_at", $dates);
+                    }
+
+                    return $query;
+                })
+                ->where(function ($query) use ($plan) {
+                    if (!empty($plan) && $plan != "both") {
+                        return $query->where('type', '=', $plan);
+                    }
+                    return $query;
+                })
+                ->where(function ($query) use ($user, $parent) {
+                    if ($parent) {
+                        return $query->whereIn("account_id", $user->accounts);
+                    }
+                    return $query;
+                })
+                ->count();
+
+            $base_failed = DB::table('deals')
+                ->where('api_key_id', $api_key)
+                ->where('finished?', 1)
+                ->where('pair', 'LIKE', $base_pair)
+                ->whereIn('status', ['failed'])
+                ->where(function ($query) use ($account) {
+                    if (!empty($account)) {
+                        return $query->whereIn('account_id', $account);
+                    }
+                    return $query;
+                })->where(function ($query) use ($dates) {
+                    if ($dates[0] && $dates[1]) {
+                        return $query->whereBetween("created_at", $dates);
+                    }
+
+                    return $query;
+                })
+                ->where(function ($query) use ($plan) {
+                    if (!empty($plan) && $plan != "both") {
+                        return $query->where('type', '=', $plan);
+                    }
+                    return $query;
+                })
+                ->where(function ($query) use ($user, $parent) {
+                    if ($parent) {
+                        return $query->whereIn("account_id", $user->accounts);
+                    }
+                    return $query;
+                })
+                ->count();
+
+            $base_cancelled = DB::table('deals')
+                ->where('api_key_id', $api_key)
+                ->where('finished?', 1)
+                ->where('pair', 'LIKE', $base_pair)
+                ->whereIn('status', ['cancelled'])
+                ->where(function ($query) use ($account) {
+                    if (!empty($account)) {
+                        return $query->whereIn('account_id', $account);
+                    }
+                    return $query;
+                })->where(function ($query) use ($dates) {
+                    if ($dates[0] && $dates[1]) {
+                        return $query->whereBetween("created_at", $dates);
+                    }
+
+                    return $query;
+                })
+                ->where(function ($query) use ($plan) {
+                    if (!empty($plan) && $plan != "both") {
+                        return $query->where('type', '=', $plan);
+                    }
+                    return $query;
+                })
+                ->where(function ($query) use ($user, $parent) {
+                    if ($parent) {
+                        return $query->whereIn("account_id", $user->accounts);
+                    }
+                    return $query;
+                })
+                ->count();
+
+            $base_actual = DB::table('deals')
+                ->where('api_key_id', $api_key)
+                ->where('finished?', 1)
+                ->where('pair', 'LIKE', $base_pair)
+                ->where(function ($query) use ($account) {
+                    if (!empty($account)) {
+                        return $query->whereIn('account_id', $account);
+                    }
+                    return $query;
+                })->where(function ($query) use ($dates) {
+                    if ($dates[0] && $dates[1]) {
+                        return $query->whereBetween("created_at", $dates);
+                    }
+
+                    return $query;
+                })
+                ->where(function ($query) use ($plan) {
+                    if (!empty($plan) && $plan != "both") {
+                        return $query->where('type', '=', $plan);
+                    }
+                    return $query;
+                })
+                ->where(function ($query) use ($user, $parent) {
+                    if ($parent) {
+                        return $query->whereIn("account_id", $user->accounts);
+                    }
+                    return $query;
+                })
+                ->count();
+
+            $base_unique = DB::table('deals')
+                ->where('api_key_id', $api_key)
+                ->where('finished?', 1)
+                ->where('pair', 'LIKE', $base_pair)
+                ->where(function ($query) use ($account) {
+                    if (!empty($account)) {
+                        return $query->whereIn('account_id', $account);
+                    }
+                    return $query;
+                })->where(function ($query) use ($dates) {
+                    if ($dates[0] && $dates[1]) {
+                        return $query->whereBetween("created_at", $dates);
+                    }
+
+                    return $query;
+                })
+                ->where(function ($query) use ($plan) {
+                    if (!empty($plan) && $plan != "both") {
+                        return $query->where('type', '=', $plan);
+                    }
+                    return $query;
+                })
+                ->where(function ($query) use ($user, $parent) {
+                    if ($parent) {
+                        return $query->whereIn("account_id", $user->accounts);
+                    }
+                    return $query;
+                })
+                ->distinct()->get(['pair']);
+
+            $base_unique = count($base_unique);
+
+            $pair_profit = (object) [
+                'base'      => $base->base,
+                'profit'    => '+' . $base_profit,
+                'unique'    => $base_unique,
+                'completed' => $base_completed,
+                'panic'     => $base_panic,
+                'stop'      => $base_stop,
+                'switched'  => $base_switched,
+                'failed'    => $base_failed,
+                'cancelled' => $base_cancelled,
+                'actual'    => $base_actual
+            ];
+
+            array_push($data, $pair_profit);
+            $total_completed = $total_completed + $base_completed;
+            $total_panic = $total_panic + $base_panic;
+            $total_stop = $total_stop + $base_stop;
+            $total_switched = $total_switched + $base_switched;
+            $total_failed = $total_failed + $base_failed;
+            $total_cancelled = $total_cancelled + $base_cancelled;
+            $total_actual = $total_actual + $base_actual;
+        }
+
+        $total_profit = (object) [
+            'base'      => 'Total',
+            'profit'    => '',
+            'unique'    => '',
+            'completed' => $total_completed,
+            'panic'     => $total_panic,
+            'stop'      => $total_stop,
+            'switched'  => $total_switched,
+            'failed'    => $total_failed,
+            'cancelled' => $total_cancelled,
+            'actual'    => $total_actual
+        ];
+
+        array_push($data, $total_profit);
+
+        return $data;
+    }
 }

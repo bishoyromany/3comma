@@ -54,4 +54,12 @@ class DashboardController extends Controller
 
         return response()->json($data);
     }
+
+
+    public function profit(Request $request)
+    {
+        $data = $this->getProfit($request);
+
+        return response()->json($data);
+    }
 }
