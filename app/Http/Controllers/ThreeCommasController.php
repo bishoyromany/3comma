@@ -28,9 +28,23 @@ class ThreeCommasController extends Controller
         Log::useDailyFiles(storage_path() . '/logs/ThreeCommasController.log');
     }
 
+    public function loadAllDeals(Request $request)
+    {
+        ini_set('max_execution_time', 600);
+        $offset = 1000;
+        $x = $request->start;
+        for (; $x <= $request->end; $x++) {
+            $request->merge(['offset' => $offset * $x]);
+            echo $this->loadDealFrom3Commas($request);
+        }
+
+        return "done";
+    }
+
     public function loadDealFrom3Commas(Request $request)
     {
         $users = User::all();
+        $allData = [];
         foreach ($users as $user) {
             if (sizeof($user->api_keys) > 0) {
                 $limit = $request->limit ?? 10000;
@@ -48,6 +62,7 @@ class ThreeCommasController extends Controller
                         } else {
                             $data = $response['response'];
                         }
+                        $allData[] = ['data' => $data, 'user' => $user, 'api' => $user->api_keys[0]];
                         foreach ($data as $json) {
                             try {
                                 try {
@@ -60,17 +75,22 @@ class ThreeCommasController extends Controller
                                 $deal->save();
                             } catch (QueryException $exception) {
                             } catch (\Exception $e) {
-                                dd($e, $data, $json);
+                                // dd($e, $data, $json);
+                                continue;
                             }
                         }
-                        $loaded = count($data);
-                        $offset += count($data);
+                        try {
+                            $loaded = count($data);
+                            $offset += count($data);
+                        } catch (\Exception $e) {
+                            break;
+                        }
                     }
                 } while ($loaded == $limit);
             }
         }
 
-        echo 'succeed';
+        echo "succeed \n";
     }
 
     public function loadBotsFrom3Commas()

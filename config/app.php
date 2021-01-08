@@ -176,7 +176,7 @@ return [
         // App\Providers\BroadcastServiceProvider::class,
         App\Providers\EventServiceProvider::class,
         App\Providers\RouteServiceProvider::class,
-        MatviiB\Scheduler\SchedulerServiceProvider::class,
+        // MatviiB\Scheduler\SchedulerServiceProvider::class,
 
         // Lunaweb\EmailVerification\Providers\EmailVerificationServiceProvider::class,
 

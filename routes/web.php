@@ -36,6 +36,7 @@ Route::group(['middleware' => ['web', 'auth', /*'isEmailVerified'*/]], function 
      Route::post('/exchangekey/store', 'ExchangeKeyController@store')->name('exchangekey/store');
 
      Route::get('/3commas/loadDeal', 'ThreeCommasController@loadDealFrom3Commas')->name('3commas/loadDeal');
+     Route::get('/3commas/loadDeal/all', 'ThreeCommasController@loadAllDeals')->name('3commas/loadDeal/all');
      Route::get('/3commas/loadBots', 'ThreeCommasController@loadBotsFrom3Commas')->name('3commas/loadBots');
      Route::get('/3commas/loadAccounts', 'ThreeCommasController@loadAccountsFrom3Commas')->name('3commas/loadAccounts');
      Route::post('/3commas/panicSellDeal/{deal_id}', 'ThreeCommasController@panicSellDeal')->name('3commas/panicSellDeal');
@@ -82,6 +83,14 @@ Route::group(['middleware' => ['web', 'auth', /*'isEmailVerified'*/]], function 
           ->name('smartswitch.dual.show')
           ->where('id', '[0-9]+');
 
+     /**
+      * accounts 
+      */
+     Route::get('/user/accounts/index', 'UserController@userAccountsIndex')->name("user.accounts.index");
+     Route::get('/user/accounts/data', 'UserController@userAccountsData')->name("user.accounts.data");
+     Route::post('/user/accounts/store', 'UserController@userAccountsStore')->name("user.accounts.store");
+     Route::get('/user/accounts/delete/{id}', 'UserController@userAccountsDelete')->name("user.accounts.delete");
+
 
      $name = 'scheduler';
      Route::get('/scheduler', "SchedulerController@index")->name("$name.index");
@@ -101,4 +110,5 @@ Route::group(['middleware' => ['web', 'auth', /*'isEmailVerified'*/]], function 
      Route::delete("/scheduler/delete", "SchedulerController@delete")->name("$name.delete");
 });
 
-Route::get('/run/monitor', 'Monitor@index')->name("monitor");
+Route::get('/run/monitor', 'Monitor@index')->name("monitor/start");
+Route::get('/stop/monitor', 'Monitor@index')->name("monitor/stop");

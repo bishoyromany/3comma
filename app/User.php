@@ -7,6 +7,7 @@ use Illuminate\Foundation\Auth\User as Authenticatable;
 use Illuminate\Database\Eloquent\SoftDeletes;
 use Lunaweb\EmailVerification\Traits\CanVerifyEmail;
 use Lunaweb\EmailVerification\Contracts\CanVerifyEmail as CanVerifyEmailContract;
+use App\Account;
 
 class User extends Authenticatable implements CanVerifyEmailContract
 
@@ -21,7 +22,7 @@ class User extends Authenticatable implements CanVerifyEmailContract
      * @var array
      */
     protected $fillable = [
-        'name', 'email', 'password',
+        'name', 'email', 'password', "parentID", "accounts"
     ];
 
     /**
@@ -35,11 +36,32 @@ class User extends Authenticatable implements CanVerifyEmailContract
 
     protected $dates = ['deleted_at'];
 
-    public function api_keys() {
+    protected $casts = [
+        "accounts" => "array"
+    ];
+
+    public function api_keys()
+    {
         return $this->hasMany('App\ApiKey');
     }
 
-    public function exchange_keys() {
+    public function exchange_keys()
+    {
         return $this->hasMany('App\ExchangeKey');
+    }
+
+    public function getAccounts()
+    {
+        $accounts = [];
+        if ($this->accounts && is_array($this->accounts)) {
+            foreach ($this->accounts as $account) {
+                $account = Account::find($account);
+                if ($account) {
+                    $accounts[] = $account;
+                }
+            }
+        }
+
+        return $accounts;
     }
 }
