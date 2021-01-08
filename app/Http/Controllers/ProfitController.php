@@ -8,14 +8,25 @@ use Auth;
 use DB;
 use App\Account;
 use Illuminate\Http\Request;
+use App\Http\Controllers\Traits\Helper;
 
 class ProfitController extends Controller
 {
+    use Helper;
+
+    public function getAccountsQuery($table = "")
+    {
+        $query = "";
+        $api = $this->api_key();
+        if ($api['parent']) {
+            $query = "AND {$table}`account_id` IN (" . implode(",", auth()->user()->accounts) . ")";
+        }
+        return $query;
+    }
+
     //
     function date()
     {
-        $user = Auth::user();
-
         $data = array(
             'both'      => array(),
             'long'      => array(),
@@ -23,8 +34,10 @@ class ProfitController extends Controller
             'api_key'   => 0
         );
 
-        if (sizeof($user->api_keys) > 0) {
-            $api_key = $user->api_keys[0]->id;
+        $api_key = $this->api_key()['key'];
+
+        if ($api_key) {
+            $api_key = $api_key;
 
             $data['api_key'] = $api_key;
             $data['both'] = DB::select($this->buildBaseQuery($api_key, "both"));
@@ -37,8 +50,6 @@ class ProfitController extends Controller
 
     function pair()
     {
-        $user = Auth::user();
-
         $data = array(
             'both'      => array(),
             'long'      => array(),
@@ -46,8 +57,10 @@ class ProfitController extends Controller
             'api_key'   => 0
         );
 
-        if (sizeof($user->api_keys) > 0) {
-            $api_key = $user->api_keys[0]->id;
+        $api_key = $this->api_key()['key'];
+
+        if ($api_key) {
+            $api_key = $api_key;
 
             $data['api_key'] = $api_key;
             $data['both'] = DB::select($this->buildBaseQuery($api_key, "both"));
@@ -60,8 +73,6 @@ class ProfitController extends Controller
 
     function bot()
     {
-        $user = Auth::user();
-
         $data = array(
             'both'      => array(),
             'long'      => array(),
@@ -69,8 +80,10 @@ class ProfitController extends Controller
             'api_key'   => 0
         );
 
-        if (sizeof($user->api_keys) > 0) {
-            $api_key = $user->api_keys[0]->id;
+        $api_key = $this->api_key()['key'];
+
+        if ($api_key) {
+            $api_key = $api_key;
 
             $data['api_key'] = $api_key;
             $data['both'] = DB::select($this->buildBaseQuery($api_key, "both", "bot"));
@@ -92,6 +105,7 @@ class ProfitController extends Controller
         $end = $request->input('end');
         $interval = $request->input('interval');
         $api_key = $request->input('api_key');
+        $accountsQuery = $this->getAccountsQuery("deals.");
 
         if (isset($start) && isset($end))
             $range = "AND created_at BETWEEN '$start' AND '$end'\n";
@@ -123,10 +137,11 @@ class ProfitController extends Controller
             FROM deals
             WHERE pair LIKE '{$base}_%' {$where} AND deals.api_key_id={$api_key} $range
             AND status IN ('completed', 'stop_loss_finished' 'panic_sold', 'switched')
+            {$accountsQuery}
             AND `finished?` = 1
             GROUP BY $interval
             ORDER BY $interval ASC;";
-        }elseif(isset($pair)){
+        } elseif (isset($pair)) {
             $p = isset($pair) ? "pair IN ('" . implode("','", $pair) . "')" : "";
             $a = isset($account) ? "account_id IN ('" . implode("','", $account) . "')" : "";
             $b = isset($bot) ? "bot_id IN ('" . implode("','", $bot) . "')" : "";
@@ -143,10 +158,11 @@ class ProfitController extends Controller
             FROM deals
             WHERE $p $and $a $and1 $b {$where} AND deals.api_key_id={$api_key} $range
             AND status IN ('completed', 'stop_loss_finished' 'panic_sold', 'switched')
+            {$accountsQuery}
             AND `finished?` = 1
             GROUP BY pair, $interval
             ORDER BY $interval ASC;";
-        }else {
+        } else {
             $a = isset($account) ? "account_id IN ('" . implode("','", $account) . "')" : "";
             $and = (isset($bot) && isset($account)) ? "AND" : "";
             $b = isset($bot) ? "bot_id IN ('" . implode("','", $bot) . "')" : "";
@@ -161,6 +177,7 @@ class ProfitController extends Controller
             FROM deals
             WHERE pair LIKE '{$base}_%' AND $a $and $b {$where} AND deals.api_key_id={$api_key} $range
             AND status IN ('completed', 'stop_loss_finished' 'panic_sold', 'switched')
+            {$accountsQuery}
             AND `finished?` = 1
             GROUP BY $interval
             ORDER BY $interval ASC;";
@@ -178,7 +195,8 @@ class ProfitController extends Controller
         return response()->json($report);
     }
 
-    public function generateReportWhere($start, $end, $interval, $strategy){
+    public function generateReportWhere($start, $end, $interval, $strategy)
+    {
         if (isset($start) && isset($end))
             $range = "AND created_at BETWEEN '$start' AND '$end'\n";
         else
@@ -210,6 +228,7 @@ class ProfitController extends Controller
         $end = $request->input('end');
         $interval = $request->input('interval');
         $api_key = $request->input('api_key');
+        $accountsQuery = $this->getAccountsQuery();
 
         $wr = $this->generateReportWhere($start, $end, $interval, $strategy);
         $where = $wr['where'];
@@ -226,6 +245,7 @@ class ProfitController extends Controller
             FROM deals
             WHERE pair LIKE '{$base}_%' {$whereAcc} {$where} AND api_key_id={$api_key} $range
             AND status IN ('completed', 'stop_loss_finished' 'panic_sold', 'switched')
+            {$accountsQuery}
             AND `finished?` = 1
             GROUP BY pair
             ORDER BY total_profit DESC;";
@@ -245,10 +265,11 @@ class ProfitController extends Controller
         $end = $request->input('end');
         $interval = $request->input('interval');
         $api_key = $request->input('api_key');
+        $accountsQuery = $this->getAccountsQuery("deals.");
         if (isset($start) && isset($end))
             $range = "AND deals.created_at BETWEEN '$start' AND '$end'\n";
         else
-        $range = "";
+            $range = "";
         $whereAcc = isset($account) ? "AND deals.account_id IN ('" . implode("','", $account) . "')" : "";
 
         $sql = "SELECT
@@ -265,6 +286,7 @@ class ProfitController extends Controller
                 FROM deals
                 LEFT OUTER JOIN bots on deals.bot_id = bots.id
                 WHERE deals.pair LIKE '{$base}_%' AND deals.type LIKE '{$strategy}' {$whereAcc} AND deals.api_key_id={$api_key} {$range}
+                {$accountsQuery}
                 AND deals.status IN ('completed', 'stop_loss_finished', 'panic_sold', 'switched')
                 AND deals.`finished?` = 1
                 GROUP BY deals.bot_id, deals.type
@@ -272,9 +294,9 @@ class ProfitController extends Controller
 
         $profit = DB::select($sql);
 
-        if($type == "ACTIVE"){
-            $profit = collect($profit)->filter(function($item){
-                return strpos($item->name,"Deleted Bot ID:") === false;
+        if ($type == "ACTIVE") {
+            $profit = collect($profit)->filter(function ($item) {
+                return strpos($item->name, "Deleted Bot ID:") === false;
             })->values()->all();
         }
 
@@ -286,18 +308,19 @@ class ProfitController extends Controller
         $api_key = $request->input('api_key');
         $strategy = $request->input('strategy');
         $base = $request->input('base');
+        $accountsQuery = $this->getAccountsQuery("deals.");
 
         if ($strategy == "%") {
             $sql = "SELECT
                       pair
                       FROM deals
-                      WHERE deals.api_key_id=$api_key AND deals.pair IS NOT NULL AND deals.pair LIKE '{$base}_%'
+                      WHERE deals.api_key_id=$api_key AND deals.pair IS NOT NULL AND deals.pair LIKE '{$base}_%' {$accountsQuery}
                       GROUP BY pair";
         } else {
             $sql = "SELECT
                       pair
                       FROM deals
-                      WHERE deals.type LIKE '$strategy' AND deals.api_key_id=$api_key AND deals.pair IS NOT NULL AND deals.pair LIKE '{$base}_%'
+                      WHERE deals.type LIKE '$strategy' AND deals.api_key_id=$api_key AND deals.pair IS NOT NULL AND deals.pair LIKE '{$base}_%' {$accountsQuery}
                       GROUP BY pair";
         }
 
@@ -311,7 +334,15 @@ class ProfitController extends Controller
         $base = $request->input('base');
         $strategy = $request->input('strategy');
         $api_key = $request->input('api_key');
-        return response()->json(Account::select("*")->where('api_key_id', '=', $api_key)->orderBy('id', 'DESC')->get());
+        $user = Auth::user();
+        $api = $this->api_key();
+        $parent = $api['parent'];
+        return response()->json(Account::select("*")->where('api_key_id', '=', $api_key)->where(function ($query) use ($user, $parent) {
+            if ($parent) {
+                return $query->whereIn("id", $user->accounts);
+            }
+            return $query;
+        })->orderBy('id', 'DESC')->get());
     }
 
     function getBots(Request $request)
@@ -325,18 +356,21 @@ class ProfitController extends Controller
 
     function buildBaseQuery($api_key, $strategy, $type = "pair")
     {
+        $accountsQuery = $this->getAccountsQuery("deals.");
         if ($type == "pair") {
             if ($strategy == "both") {
                 $sql = "SELECT
                       SUBSTRING_INDEX(pair, '_', 1) AS base
                       FROM deals
                       WHERE deals.api_key_id=$api_key AND deals.pair IS NOT NULL
+                      {$accountsQuery}
                       GROUP BY base";
             } else {
                 $sql = "SELECT
                       SUBSTRING_INDEX(pair, '_', 1) AS base
                       FROM deals
                       WHERE deals.type LIKE '$strategy' AND deals.api_key_id=$api_key AND deals.pair IS NOT NULL
+                      {$accountsQuery}
                       GROUP BY base";
             }
         } else {
@@ -345,12 +379,14 @@ class ProfitController extends Controller
                       SUBSTRING_INDEX(pair, '_', 1) AS base
                       FROM deals
                       WHERE deals.api_key_id=$api_key AND deals.pair IS NOT NULL
+                      {$accountsQuery}
                       GROUP BY base";
             } else {
                 $sql = "SELECT
                       SUBSTRING_INDEX(pair, '_', 1) AS base
                       FROM deals
                       WHERE deals.type LIKE '$strategy' AND deals.api_key_id=$api_key AND deals.pair IS NOT NULL
+                      {$accountsQuery}
                       GROUP BY base";
             }
         }

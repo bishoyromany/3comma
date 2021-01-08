@@ -11,35 +11,66 @@ namespace App\Http\Controllers\Traits;
 
 use Auth;
 use DB;
+use App\Http\Controllers\Traits\Helper;
 
 trait Dashboard
 {
+    use Helper;
+
     public function dashboardData($request)
     {
         $user = Auth::user();
 
+        $api = $this->api_key();
+        $api_key = $api['key'];
+        $parent = $api['parent'];
+
         //TODO: create table to store these values updated by a cron rather than query the db on each dashboard view. This data might only be used during testing to verify data.
-        if (sizeof($user->api_keys) > 0) {
-            $data['api_key_id'] = $user->api_keys[0]->id;
+        if ($api_key) {
+            $data['api_key_id'] = $api_key;
             $data['completed_deals'] = DB::table('deals')
-                ->where('api_key_id', $user->api_keys[0]->id)
+                ->where('api_key_id', $api_key)
                 ->where('finished?', 1)
+                ->where(function ($query) use ($user, $parent) {
+                    if ($parent) {
+                        return $query->whereIn("account_id", $user->accounts);
+                    }
+                    return $query;
+                })
                 ->count();
 
             $data['active_deals'] = DB::table('deals')
-                ->where('api_key_id', $user->api_keys[0]->id)
+                ->where('api_key_id', $api_key)
                 ->where('finished?', 0)
+                ->where(function ($query) use ($user, $parent) {
+                    if ($parent) {
+                        return $query->whereIn("account_id", $user->accounts);
+                    }
+                    return $query;
+                })
                 ->count();
 
             $data['active_deals_list'] = DB::table('deals')
-                ->where('api_key_id', $user->api_keys[0]->id)
+                ->where('api_key_id', $api_key)
                 ->where('finished?', 0)
+                ->where(function ($query) use ($user, $parent) {
+                    if ($parent) {
+                        return $query->whereIn("account_id", $user->accounts);
+                    }
+                    return $query;
+                })
                 ->get();
 
             $data['recent_completed_deals'] = DB::table('deals')
-                ->where('api_key_id', $user->api_keys[0]->id)
+                ->where('api_key_id', $api_key)
                 ->where('finished?', 1)
                 ->orderBy('id', 'desc')
+                ->where(function ($query) use ($user, $parent) {
+                    if ($parent) {
+                        return $query->whereIn("account_id", $user->accounts);
+                    }
+                    return $query;
+                })
                 ->limit(10)
                 ->get();
 
@@ -47,23 +78,47 @@ trait Dashboard
 
             $bases = DB::table('deals')
                 ->select(DB::raw('SUBSTRING_INDEX(pair, "_", 1) base'))
-                ->where('api_key_id', $user->api_keys[0]->id)
+                ->where('api_key_id', $api_key)
+                ->where(function ($query) use ($user, $parent) {
+                    if ($parent) {
+                        return $query->whereIn("account_id", $user->accounts);
+                    }
+                    return $query;
+                })
                 ->whereNotNull('pair')
                 ->groupBy('base')
                 ->get();
 
             $data['bot_count'] = DB::table('bots')
-                ->where('api_key_id', $user->api_keys[0]->id)
+                ->where('api_key_id', $api_key)
+                ->where(function ($query) use ($user, $parent) {
+                    if ($parent) {
+                        return $query->whereIn("account_id", $user->accounts);
+                    }
+                    return $query;
+                })
                 ->count();
 
             $data['active_bots'] = DB::table('bots')
-                ->where('api_key_id', $user->api_keys[0]->id)
+                ->where('api_key_id', $api_key)
                 ->where('is_enabled', true)
+                ->where(function ($query) use ($user, $parent) {
+                    if ($parent) {
+                        return $query->whereIn("account_id", $user->accounts);
+                    }
+                    return $query;
+                })
                 ->count();
 
             $data['active_bots_list'] = DB::table('bots')
-                ->where('api_key_id', $user->api_keys[0]->id)
+                ->where('api_key_id', $api_key)
                 ->where('is_enabled', true)
+                ->where(function ($query) use ($user, $parent) {
+                    if ($parent) {
+                        return $query->whereIn("account_id", $user->accounts);
+                    }
+                    return $query;
+                })
                 ->get();
 
             $data['base_profit'] = [];
@@ -78,71 +133,131 @@ trait Dashboard
             foreach ($bases as $base) {
                 $base_pair = $base->base . "_%";
                 $base_profit = DB::table('deals')
-                    ->where('api_key_id', $user->api_keys[0]->id)
+                    ->where('api_key_id', $api_key)
                     ->where('finished?', 1)
                     ->where('pair', 'LIKE', $base_pair)
                     ->whereIn('status', ['completed', 'panic_sold', 'stop_loss_finished'])
+                    ->where(function ($query) use ($user, $parent) {
+                        if ($parent) {
+                            return $query->whereIn("account_id", $user->accounts);
+                        }
+                        return $query;
+                    })
                     ->sum('final_profit');
 
                 $base_deals = DB::table('deals')
-                    ->where('api_key_id', $user->api_keys[0]->id)
+                    ->where('api_key_id', $api_key)
                     ->where('finished?', 1)
                     ->where('pair', 'LIKE', $base_pair)
                     ->whereIn('status', ['completed', 'panic_sold', 'stop_loss_finished'])
+                    ->where(function ($query) use ($user, $parent) {
+                        if ($parent) {
+                            return $query->whereIn("account_id", $user->accounts);
+                        }
+                        return $query;
+                    })
                     ->count();
 
                 $base_completed = DB::table('deals')
-                    ->where('api_key_id', $user->api_keys[0]->id)
+                    ->where('api_key_id', $api_key)
                     ->where('finished?', 1)
                     ->where('pair', 'LIKE', $base_pair)
                     ->whereIn('status', ['completed'])
+                    ->where(function ($query) use ($user, $parent) {
+                        if ($parent) {
+                            return $query->whereIn("account_id", $user->accounts);
+                        }
+                        return $query;
+                    })
                     ->count();
 
                 $base_panic = DB::table('deals')
-                    ->where('api_key_id', $user->api_keys[0]->id)
+                    ->where('api_key_id', $api_key)
                     ->where('finished?', 1)
                     ->where('pair', 'LIKE', $base_pair)
                     ->whereIn('status', ['panic_sold'])
+                    ->where(function ($query) use ($user, $parent) {
+                        if ($parent) {
+                            return $query->whereIn("account_id", $user->accounts);
+                        }
+                        return $query;
+                    })
                     ->count();
 
                 $base_stop = DB::table('deals')
-                    ->where('api_key_id', $user->api_keys[0]->id)
+                    ->where('api_key_id', $api_key)
                     ->where('finished?', 1)
                     ->where('pair', 'LIKE', $base_pair)
                     ->whereIn('status', ['stop_loss_finished'])
+                    ->where(function ($query) use ($user, $parent) {
+                        if ($parent) {
+                            return $query->whereIn("account_id", $user->accounts);
+                        }
+                        return $query;
+                    })
                     ->count();
 
                 $base_switched = DB::table('deals')
-                    ->where('api_key_id', $user->api_keys[0]->id)
+                    ->where('api_key_id', $api_key)
                     ->where('finished?', 1)
                     ->where('pair', 'LIKE', $base_pair)
                     ->whereIn('status', ['switched'])
+                    ->where(function ($query) use ($user, $parent) {
+                        if ($parent) {
+                            return $query->whereIn("account_id", $user->accounts);
+                        }
+                        return $query;
+                    })
                     ->count();
 
                 $base_failed = DB::table('deals')
-                    ->where('api_key_id', $user->api_keys[0]->id)
+                    ->where('api_key_id', $api_key)
                     ->where('finished?', 1)
                     ->where('pair', 'LIKE', $base_pair)
                     ->whereIn('status', ['failed'])
+                    ->where(function ($query) use ($user, $parent) {
+                        if ($parent) {
+                            return $query->whereIn("account_id", $user->accounts);
+                        }
+                        return $query;
+                    })
                     ->count();
 
                 $base_cancelled = DB::table('deals')
-                    ->where('api_key_id', $user->api_keys[0]->id)
+                    ->where('api_key_id', $api_key)
                     ->where('finished?', 1)
                     ->where('pair', 'LIKE', $base_pair)
                     ->whereIn('status', ['cancelled'])
+                    ->where(function ($query) use ($user, $parent) {
+                        if ($parent) {
+                            return $query->whereIn("account_id", $user->accounts);
+                        }
+                        return $query;
+                    })
                     ->count();
 
                 $base_actual = DB::table('deals')
-                    ->where('api_key_id', $user->api_keys[0]->id)
+                    ->where('api_key_id', $api_key)
                     ->where('finished?', 1)
                     ->where('pair', 'LIKE', $base_pair)
+                    ->where(function ($query) use ($user, $parent) {
+                        if ($parent) {
+                            return $query->whereIn("account_id", $user->accounts);
+                        }
+                        return $query;
+                    })
                     ->count();
 
                 $base_unique = DB::table('deals')
-                    ->where('api_key_id', $user->api_keys[0]->id)
+                    ->where('api_key_id', $api_key)
                     ->where('finished?', 1)
                     ->where('pair', 'LIKE', $base_pair)
+                    ->where(function ($query) use ($user, $parent) {
+                        if ($parent) {
+                            return $query->whereIn("account_id", $user->accounts);
+                        }
+                        return $query;
+                    })
                     ->distinct()->get(['pair']);
 
                 $base_unique = count($base_unique);
@@ -201,6 +316,10 @@ trait Dashboard
     public function getCompletedDealsSoSum($request)
     {
         $user = auth()->user();
+        $api = $this->api_key();
+        $api_key = $api['key'];
+        $parent = $api['parent'];
+
         $deals = 0;
         $x = 0;
         $sos = [];
@@ -216,7 +335,7 @@ trait Dashboard
         $dates = [$request->start, $request->end];
 
         DB::table('deals')
-            ->where('api_key_id', $user->api_keys[0]->id)
+            ->where('api_key_id', $api_key)
             ->where('finished?', 1)
             ->where('deal_has_error', 0)
             ->where(function ($query) use ($account) {
@@ -229,6 +348,12 @@ trait Dashboard
                     return $query->whereBetween("created_at", $dates);
                 }
 
+                return $query;
+            })
+            ->where(function ($query) use ($user, $parent) {
+                if ($parent) {
+                    return $query->whereIn("account_id", $user->accounts);
+                }
                 return $query;
             })
             ->orderBy('id', 'desc')
@@ -247,13 +372,6 @@ trait Dashboard
                 $deals += 1;
                 $sos[$key]['deals'] = $deals;
                 $sos[$key]['so'] = $key;
-                // $sum['deals'] += 1;
-                // if ($item->completed_safety_orders_count > 0) {
-                //     $sum['max_safety_orders'] += $item->max_safety_orders;
-                //     $sum['completed_safety_orders_count'] += $item->completed_safety_orders_count;
-                //     $sum['so'] = "$sum[completed_safety_orders_count] / $sum[max_safety_orders]";
-                //     $x += 1;
-                // }
 
                 return $item;
             });

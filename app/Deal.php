@@ -3,9 +3,11 @@
 namespace App;
 
 use Illuminate\Database\Eloquent\Model;
+use App\Http\Controllers\Traits\Helper;
 
 class Deal extends Model
 {
+    use Helper;
     //
     protected $fillable = [
         "id", "account_id", "bot_id", "bot_name", "account_name", "pair", "take_profit", "base_order_volume", "safety_order_volume",
@@ -20,14 +22,22 @@ class Deal extends Model
     public static function bots($api_key_id): array
     {
         $bots = [];
+        $user = auth()->user();
+        $api = self::api_key();
+        $parent = $api['parent'];
 
-        self::select('bot_id', 'bot_name')->where('api_key_id', '=', $api_key_id)->get()->map(function($item) use(&$bots){
-            $bots[$item['bot_id']] = $item['bot_name']; 
+        self::select('bot_id', 'bot_name')->where('api_key_id', '=', $api_key_id)->where(function ($query) use ($user, $parent) {
+            if ($parent) {
+                return $query->whereIn("account_id", $user->accounts);
+            }
+            return $query;
+        })->get()->map(function ($item) use (&$bots) {
+            $bots[$item['bot_id']] = $item['bot_name'];
         });
 
         $bts = [];
 
-        foreach($bots as $k=>$v){
+        foreach ($bots as $k => $v) {
             $bts[] = [
                 'id' => $k,
                 'name' => $v

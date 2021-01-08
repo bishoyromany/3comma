@@ -26,7 +26,17 @@ class DashboardController extends Controller
     public function index(Request $request)
     {
         $data = $this->dashboardData($request);
-        $api_key = auth()->user()->api_keys[0]->id;
+        $user = auth()->user();
+        if ($user->parentID) {
+            $user = $user->parentUser;
+        }
+
+        if (count($user->api_keys) > 0) {
+            $api_key = $user->api_keys[0]->id;
+        } else {
+            $api_key = false;
+        }
+
         $data['api_key'] = $api_key;
         return view('dashboard', $data);
     }

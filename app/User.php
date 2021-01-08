@@ -50,6 +50,11 @@ class User extends Authenticatable implements CanVerifyEmailContract
         return $this->hasMany('App\ExchangeKey');
     }
 
+    public function parentUser()
+    {
+        return $this->hasOne("App\User", "id", "parentID");
+    }
+
     public function getAccounts()
     {
         $accounts = [];
