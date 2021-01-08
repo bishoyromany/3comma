@@ -768,4 +768,60 @@ trait Dashboard
 
         return $data;
     }
+
+
+    public function getActiveDeals($request)
+    {
+        $user = auth()->user();
+        $api = $this->api_key();
+        $api_key = $api['key'];
+        $parent = $api['parent'];
+        $account = $request->account;
+        $dates = [$request->start, $request->end];
+        $plan = $request->plan ?? "both";
+
+        $data = DB::table('deals')
+            ->where('api_key_id', $api_key)
+            ->where('finished?', 0)
+            ->where(function ($query) use ($account) {
+                if (!empty($account)) {
+                    return $query->whereIn('account_id', $account);
+                }
+                return $query;
+            })->where(function ($query) use ($dates) {
+                if ($dates[0] && $dates[1]) {
+                    return $query->whereBetween("created_at", $dates);
+                }
+
+                return $query;
+            })
+            ->where(function ($query) use ($plan) {
+                if (!empty($plan) && $plan != "both") {
+                    return $query->where('type', '=', $plan);
+                }
+                return $query;
+            })
+            ->where(function ($query) use ($user, $parent) {
+                if ($parent) {
+                    return $query->whereIn("account_id", $user->accounts);
+                }
+                return $query;
+            })
+            ->get()->map(function ($item) {
+                $token = "<input type='hidden' name='_token' value='" . csrf_token() . "' />";
+                $item->id_bot = '<a href="' . route("basic.deal.show", $item->id) . '" class="label label-primary" title="Show Deal">' . $item->id . '</a><br><a href="' . route("basic.bot.show", $item->bot_id) . '" class="label label-primary" title="Show Bot">' . $item->bot_name . '</a>';
+                $item->safety_trades = $item->completed_safety_orders_count . " / " . $item->active_safety_orders_count . " / " . $item->max_safety_orders;
+                $item->actions = '<form action="' . route("3commas/panicSellDeal", $item->id) . '" method="POST" data-table="activeDeals" class="ajax-form">' . $token;
+                $item->actions .= "<button class='btn btn-warning'>Panic Sell</button>";
+                $item->actions .= "</form>";
+                $item->actions .= '<form action="' . route("3commas/cancelDeal", $item->id) . '" method="POST" data-table="activeDeals" class="ajax-form">' . $token;
+                $item->actions .= "<button class='btn btn-danger'>Cancel Deal</button>";
+                $item->actions .= "</form>";
+                return $item;
+            });
+
+        // dd($data);
+
+        return $data;
+    }
 }

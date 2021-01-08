@@ -171,11 +171,11 @@ class ThreeCommasController extends Controller
     public function panicSellDeal($deal_id)
     {
         $user = Auth::user();
-
         if (sizeof($user->api_keys) > 0) {
             $response = $this->deal_panic_sell($user->api_keys[0], $deal_id);
             if ($response['status'] == 200) {
                 $data = $response['response'];
+                $this->loadDealFrom3Commas(new Request);
                 return response()->json($data);
             } else {
                 Log::critical(['user_id' => $user->id, 'username' => $user->name, 'panicSellDealResponse' => $response['status'], 'message' => $response['response']]);
@@ -185,6 +185,7 @@ class ThreeCommasController extends Controller
         }
 
         echo 'succeed';
+        return back();
     }
 
     public function cancelDeal($deal_id)
@@ -195,6 +196,7 @@ class ThreeCommasController extends Controller
             $response = $this->deal_cancel($user->api_keys[0], $deal_id);
             if ($response['status'] == 200) {
                 $data = $response['response'];
+                $this->loadDealFrom3Commas(new Request);
                 return response()->json($data);
             } else {
                 Log::critical(['user_id' => $user->id, 'username' => $user->name, 'cancelDealResponse' => $response['status'], 'message' => $response['response']]);
@@ -204,6 +206,7 @@ class ThreeCommasController extends Controller
         }
 
         echo 'succeed';
+        return back();
     }
 
     public function disableBot($bot_id)

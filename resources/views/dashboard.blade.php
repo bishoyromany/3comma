@@ -112,7 +112,6 @@
       <div class="box-header">
         <h3 class="box-title">Total Profits</h3>
       </div>
-
         <div class="form-group" style="margin-top: 15px;">
             <div class="form-group col-md-3">
                 <label>Accounts</label>
@@ -181,6 +180,50 @@
     </div>
   </div>
 </div>
+
+<div class="row">
+  <div class="col-sm-12 col-md-12">
+    <div class="box box-primary">
+      <div class="box-header">
+        <h3 class="box-title">Active Deals</h3>
+      </div>
+
+        <div class="form-group" style="margin-top: 15px;">
+            <div class="form-group col-md-3">
+                <label>Accounts</label>
+                <select id="accountsActiveDeals" class="select2 accountsActiveDeals" multiple="multiple" style="width: 300px;"></select>
+            </div>
+
+            <div class="form-group col-md-3">
+              <label>Strategy</label>
+              <select id="planActiveDeals" class="select2 planActiveDeals" style="width: 300px;">
+                <option value="both">Both</option>
+                <option value="Deal">Long</option>
+                <option value="Deal::ShortDeal">Short</option>
+              </select>
+            </div>
+
+            <div class="form-group col-md-3">
+                <div class="input-group">
+                    <button type="button" class="btn btn-default form-control pull-right daterange" id="daterangeActiveDeals">
+                <span>
+                  <i class="fa fa-calendar"></i> Please select date range
+                </span>
+                        <i class="fa fa-caret-down"></i>
+                    </button>
+                </div>
+            </div>
+            <div class="col-md-6"></div>
+        </div>
+        <div style="clear:both;"></div>
+        <div style="padding: 10px;">
+          <table id ="tblActiveDeals" class="table table-bordered table-striped table-hover-blue"></table>
+        </div>
+    </div>
+  </div>
+</div>
+
+
 
 <div class="row">
   <div class="col-sm-12 col-md-12">
@@ -401,6 +444,20 @@
         ]
     };
 
+    var columnsActiveDeals = {
+        "columns": [
+            { "title": "ID / Bot", "data": "id_bot" },
+            { "title": "Pair", "data": "pair" },
+            { "title": "BO", "data": "base_order_volume" },
+            { "title": "SO", "data": "safety_order_volume" },
+            { "title": "SOS", "data": "safety_order_step_percentage" },
+            { "title": "MC", "data": "martingale_coefficient" },
+            { "title": "Safety Trades", "data": "safety_trades" },
+            { "title": "TP", "data": "take_profit" },
+            { "title": "actions", "data": "actions" },
+        ]
+    };
+
     var rangePickerOptions = {
         opens: "right",
         ranges   : {
@@ -417,11 +474,16 @@
 
     var soURL = "{{ route('dashboard/soSum') }}";
     var profitURL = "{{ route('dashboard/profit') }}";
+    var activeDealsURL = "{{ route('dashboard/activeDeals') }}";
     var rangeStart, rangeEnd;
     var accounts = [];
     var rangeStartProfit, rangeEndProfit;
     var accountsProfit = [];
     var palnProfit = [];
+
+    var rangeStartActiveDeals, rangeEndActiveDeals;
+    var accountsActiveDeals = [];
+    var palnActiveDeals = [];
 
     function makeReport(url, acc, plan, rs, re, t) {
       $('.overlay').show();
@@ -458,9 +520,11 @@
             response.forEach(function (row, index) {
                 $('#' + pairId).append('<option value="' + row.id + '">' + row.name + '</option>');
                 $('#accountProfit').append('<option value="' + row.id + '">' + row.name + '</option>');
+                $('#accountsActiveDeals').append('<option value="' + row.id + '">' + row.name + '</option>');
             });
             makeReport(soURL, accounts, 'both', rangeStart, rangeEnd, $table);
             makeReport(profitURL, accountsProfit, palnProfit, rangeStartProfit, rangeEndProfit, $tableProfit);
+            makeReport(activeDealsURL, accountsActiveDeals, palnActiveDeals, rangeStartActiveDeals, rangeEndActiveDeals, $tableActiveDeals);
         });
     }
 
@@ -469,6 +533,7 @@
             $table = $('#tbl').DataTable(columns);
             // profit
             $tableProfit = $('#tblProfit').DataTable(columnsProfit);
+            $tableActiveDeals = $('#tblActiveDeals').DataTable(columnsActiveDeals);
 
             $('#daterange').daterangepicker(rangePickerOptions, function (start, end) {
                 $('#daterange span').html(start.format('MMMM D, YYYY') + ' - ' + end.format('MMMM D, YYYY'));
@@ -480,6 +545,12 @@
                 $('#daterangeProfit span').html(start.format('MMMM D, YYYY') + ' - ' + end.format('MMMM D, YYYY'));
                 rangeStartProfit = start; rangeEndProfit = end;
                 makeReport(profitURL, accountsProfit, palnProfit, rangeStartProfit, rangeEndProfit, $tableProfit);
+            });
+
+            $('#daterangeActiveDeals').daterangepicker(rangePickerOptions, function (start, end) {
+                $('#daterangeActiveDeals span').html(start.format('MMMM D, YYYY') + ' - ' + end.format('MMMM D, YYYY'));
+                rangeStartActiveDeals = start; rangeEndActiveDeals = end;
+                makeReport(activeDealsURL, accountsActiveDeals, palnActiveDeals, rangeStartActiveDeals, rangeEndActiveDeals, $tableActiveDeals);
             });
 
             $('.account').select2().on('change', function () {
@@ -495,6 +566,17 @@
             $('.planProfit').select2().on('change', function () {
                 palnProfit = $(this).val();
                 makeReport(profitURL, accountsProfit, palnProfit, rangeStartProfit, rangeEndProfit, $tableProfit);
+            });
+
+
+            // profit
+            $('.accountsActiveDeals').select2().on('change', function () {
+              accountsActiveDeals = $(this).val();
+                makeReport(activeDealsURL, accountsActiveDeals, palnActiveDeals, rangeStartActiveDeals, rangeEndActiveDeals, $tableActiveDeals);
+            });
+            $('.planActiveDeals').select2().on('change', function () {
+                palnActiveDeals = $(this).val();
+                makeReport(activeDealsURL, accountsActiveDeals, palnActiveDeals, rangeStartActiveDeals, rangeEndActiveDeals, $tableActiveDeals);
             });
 
             updateAccounts();

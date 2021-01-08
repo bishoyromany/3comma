@@ -62,4 +62,11 @@ class DashboardController extends Controller
 
         return response()->json($data);
     }
+
+    public function activeDeals(Request $request)
+    {
+        $data = $this->getActiveDeals($request);
+
+        return response()->json($data);
+    }
 }
