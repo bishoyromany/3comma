@@ -256,11 +256,18 @@ class ProfitController extends Controller
         $blackList = PairsBlackList::where('api_key', '=', $api_key)->get()[0]->pairs ?? [];
         $profits = [];
         foreach ($profit as $pr) {
+            $bl = $blackList;
+            $bl[] = $pr->pair;
             $button = '<button class="btn btn-danger">Black List</button>';
+            $input = '<input type="hidden" name="pairs" value=\'' . json_encode($bl) . '\' />';
             if (in_array($pr->pair, $blackList)) {
-                $button = '<button class="btn btn-danger">unBlack List</button>';
+                $index = array_search($pr->pair, $blackList);
+                $bl = $blackList;
+                unset($bl[$index]);
+                $button = '<button class="btn btn-success">unBlack List</button>';
+                $input = '<input type="hidden" name="pairs" value=\'' . json_encode($bl) . '\' />';
             }
-            $pr->actions = '<form method="POST" action="' . route("3commas/updateParisBlackList") . '"><input type="hidden" name="pairs" value=\'' . json_encode([$pr->pair]) . '\' />' . $button . ' <input type="hidden" name="_token" value="' . csrf_token() . '" /></form>';
+            $pr->actions = '<form method="POST" action="' . route("3commas/updateParisBlackList") . '">' . $input . $button . ' <input type="hidden" name="_token" value="' . csrf_token() . '" /></form>';
             $profits[] = $pr;
         }
         return response()->json($profits);

@@ -14,6 +14,7 @@ use GuzzleHttp;
 use \GuzzleHttp\Exception\GuzzleException;
 use Guzzle\Http\Exception\ClientErrorResponseException;
 use App\Http\Controllers\Helpers\sendCurlGetRequest;
+use App\Http\Controllers\Helpers\sendCurlPostRequest;
 
 trait ThreeCommas
 {
@@ -42,7 +43,9 @@ trait ThreeCommas
             $query = http_build_query($parameters, '', '&');
             $signature = hash_hmac('sha256', $url . '?' . $query, $secret_key);
         } else {
-            $signature = hash_hmac('sha256', $url, $secret_key);
+            $query = http_build_query($parameters, '', '&');
+            $signature = hash_hmac('sha256', $url . '?' . $query, $secret_key);
+            // $signature = hash_hmac('sha256', $url, $secret_key);
         }
 
         $client = new GuzzleHttp\Client();
@@ -74,6 +77,8 @@ trait ThreeCommas
                 ];
             }
         } catch (GuzzleException $e) {
+            // $response = $client->request($config['method'], $this->root . $url, $options);
+
             try {
                 if (strtoupper($config['method']) === 'GET') {
                     $response = (new sendCurlGetRequest([
@@ -81,8 +86,16 @@ trait ThreeCommas
                         'headers' => $options['headers'],
                         'params' => $options['form_params']
                     ]))->response();
-                } else {
-                    dd("Method Not Supported By CURL");
+                }
+                // elseif (strtoupper($config['method']) === 'POST') {
+                //     $response = (new sendCurlPostRequest([
+                //         'url' => $this->root . $url,
+                //         'headers' => $options['headers'],
+                //         'params' => $options['form_params']
+                //     ]))->response();
+                // } 
+                else {
+                    dd("Method Not Supported By CURL", $e, $config['method'], $this->root . $url, $options);
                 }
 
                 $response['response'] = json_decode($response['response']);
@@ -212,8 +225,9 @@ trait ThreeCommas
         return $this->requestThreeCommas($key, 'pairs_black_list');
     }
 
-    public function update_pairs_black_list($key, $paris)
+    public function update_pairs_black_list($key, $pairs)
     {
-        return $this->requestThreeCommas($key, 'update_pairs_black_list', ['paris' => $paris], ['paris' => $paris]);
+        $it = implode(",", $pairs);
+        return $this->requestThreeCommas($key, 'update_pairs_black_list', ['pairs' => $it]);
     }
 }

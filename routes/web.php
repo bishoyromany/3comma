@@ -37,11 +37,6 @@ Route::group(['middleware' => ['web', 'auth', /*'isEmailVerified'*/]], function 
      Route::get('/exchangekey/create', 'ExchangeKeyController@create');
      Route::post('/exchangekey/store', 'ExchangeKeyController@store')->name('exchangekey/store');
 
-     Route::get('/3commas/loadDeal', 'ThreeCommasController@loadDealFrom3Commas')->name('3commas/loadDeal');
-     Route::get('/3commas/loadDeal/all', 'ThreeCommasController@loadAllDeals')->name('3commas/loadDeal/all');
-     Route::get('/3commas/loadBots', 'ThreeCommasController@loadBotsFrom3Commas')->name('3commas/loadBots');
-     Route::get('/3commas/loadAccounts', 'ThreeCommasController@loadAccountsFrom3Commas')->name('3commas/loadAccounts');
-     Route::get('/3commas/parisBlackList', 'ThreeCommasController@parisBlackList')->name('3commas/parisBlackList');
      Route::post('/3commas/panicSellDeal/{deal_id}', 'ThreeCommasController@panicSellDeal')->name('3commas/panicSellDeal');
      Route::post('/3commas/cancelDeal/{deal_id}', 'ThreeCommasController@cancelDeal')->name('3commas/cancelDeal');
      Route::post('/3commas/disableBot/{bot_id}', 'ThreeCommasController@disableBot')->name('3commas/disableBot');
@@ -117,3 +112,10 @@ Route::group(['middleware' => ['web', 'auth', /*'isEmailVerified'*/]], function 
 
 Route::get('/run/monitor', 'Monitor@index')->name("monitor/start");
 Route::get('/stop/monitor', 'Monitor@index')->name("monitor/stop");
+
+
+Route::get('/3commas/loadDeal', 'ThreeCommasController@loadDealFrom3Commas')->name('3commas/loadDeal');
+Route::get('/3commas/loadDeal/all', 'ThreeCommasController@loadAllDeals')->name('3commas/loadDeal/all');
+Route::get('/3commas/loadBots', 'ThreeCommasController@loadBotsFrom3Commas')->name('3commas/loadBots');
+Route::get('/3commas/loadAccounts', 'ThreeCommasController@loadAccountsFrom3Commas')->name('3commas/loadAccounts');
+Route::get('/3commas/parisBlackList', 'ThreeCommasController@parisBlackList')->name('3commas/parisBlackList');

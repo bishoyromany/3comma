@@ -275,7 +275,7 @@ class ThreeCommasController extends Controller
             if ($response['status'] == 200) {
                 $data = $response['response'];
 
-                $pairs = PairsBlackList::where('api_key', '=', $user->api_keys[0])->get()[0] ?? false;
+                $pairs = PairsBlackList::where('api_key', '=', $user->api_keys[0]->id)->get()[0] ?? false;
                 $pairsStore = [
                     'user_id' => $user->id,
                     'api_key' => $user->api_keys[0]->id,
@@ -314,9 +314,9 @@ class ThreeCommasController extends Controller
         $pairs = $request->pairs;
         if (sizeof($user->api_keys) > 0 && $pairs && is_array($pairs)) {
             $response = $this->update_pairs_black_list($user->api_keys[0], $pairs);
+            $this->parisBlackList();
             if ($response['status'] == 200) {
                 $data = $response['response'];
-                $this->parisBlackList();
                 return response()->json($data);
             } else {
                 Log::critical(['user_id' => $user->id, 'username' => $user->name, 'updateParisBlackList' => $response['status'], 'message' => $response['response']]);
@@ -326,5 +326,7 @@ class ThreeCommasController extends Controller
         }
 
         echo 'succeed';
+
+        return back();
     }
 }
