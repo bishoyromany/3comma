@@ -151,6 +151,9 @@
         <div style="padding: 10px;">
           <table id ="tblProfit" class="table table-bordered table-striped table-hover-blue"></table>
         </div>
+        <div class="overlay" style="display: none;">
+          <i class="fa fa-refresh fa-spin"></i>
+      </div>
     </div>
   </div>
 </div>
@@ -184,6 +187,9 @@
         <div style="padding: 10px;">
           <table id ="tbl" class="table table-bordered table-striped table-hover-blue"></table>
         </div>
+        <div class="overlay" style="display: none;">
+          <i class="fa fa-refresh fa-spin"></i>
+      </div>
     </div>
   </div>
 </div>
@@ -226,6 +232,9 @@
         <div style="padding: 10px;">
           <table id ="tblActiveDeals" class="table table-bordered table-striped table-hover-blue"></table>
         </div>
+        <div class="overlay" style="display: none;">
+          <i class="fa fa-refresh fa-spin"></i>
+      </div>
     </div>
   </div>
 </div>
