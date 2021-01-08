@@ -258,16 +258,16 @@ class ProfitController extends Controller
         foreach ($profit as $pr) {
             $bl = $blackList;
             $bl[] = $pr->pair;
-            $button = '<button class="btn btn-danger">Black List</button>';
+            $button = '<button class="btn btn-danger">Block</button>';
             $input = '<input type="hidden" name="pairs" value=\'' . json_encode($bl) . '\' />';
             if (in_array($pr->pair, $blackList)) {
                 $index = array_search($pr->pair, $blackList);
                 $bl = $blackList;
                 unset($bl[$index]);
-                $button = '<button class="btn btn-success">unBlack List</button>';
+                $button = '<button class="btn btn-success">Unblock</button>';
                 $input = '<input type="hidden" name="pairs" value=\'' . json_encode($bl) . '\' />';
             }
-            $pr->actions = '<form method="POST" action="' . route("3commas/updateParisBlackList") . '">' . $input . $button . ' <input type="hidden" name="_token" value="' . csrf_token() . '" /></form>';
+            $pr->actions = '<form method="POST" onclick="block($(this))" action="' . route("3commas/updateParisBlackList") . '">' . $input . $button . ' <input type="hidden" name="_token" value="' . csrf_token() . '" /></form>';
             $profits[] = $pr;
         }
         return response()->json($profits);

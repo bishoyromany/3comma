@@ -2,7 +2,6 @@
 
 @section('content')
 <div class="row">
-
     <div class="col-md-3 col-sm-6 col-xs-12">
       <div class="info-box">
         <span class="info-box-icon bg-green"><i class="fa fa-database"></i></span>
@@ -119,7 +118,7 @@
             </div>
 
             <div class="form-group col-md-3">
-                <label>Strategy</label>
+                <label>Plan</label>
                 <select id="planProfit" class="select2 planProfit" style="width: 300px;">
                   <option value="both">Both</option>
                   <option value="Deal">Long</option>
@@ -127,6 +126,14 @@
                 </select>
             </div>
 
+            <div class="form-group col-md-3">
+              <label>Strategy</label>
+              <select id="strategyProfit" class="select2 strategyProfit" style="width: 300px;">
+                <option value="both">Both</option>
+                <option value="cqs_binance_futures">cqs_binance_futures</option>
+                <option value="cqs_premium_new">cqs_premium_new</option>
+              </select>
+            </div>
 
             <div class="form-group col-md-3">
                 <div class="input-group">
@@ -195,7 +202,7 @@
             </div>
 
             <div class="form-group col-md-3">
-              <label>Strategy</label>
+              <label>Paln</label>
               <select id="planActiveDeals" class="select2 planActiveDeals" style="width: 300px;">
                 <option value="both">Both</option>
                 <option value="Deal">Long</option>
@@ -480,17 +487,20 @@
     var rangeStartProfit, rangeEndProfit;
     var accountsProfit = [];
     var palnProfit = [];
+    var strategyProfit = [];
 
     var rangeStartActiveDeals, rangeEndActiveDeals;
     var accountsActiveDeals = [];
     var palnActiveDeals = [];
+    var strategyActiveDeals = [];
 
-    function makeReport(url, acc, plan, rs, re, t) {
+    function makeReport(url, acc, plan, rs, re, t, strategy) {
       $('.overlay').show();
       $.post(url, {
           "_token" : "{{ csrf_token() }}",
           "account": acc,
           "plan": plan,
+          "strategy": strategy,
           "start" : rs != null ? rs.format('YYYY-MM-DD 00:00:00') : "",
           "end" : re != null ?  re.format('YYYY-MM-DD 23:59:59') : "",
           "api_key" : "{{ $api_key }}",
@@ -523,13 +533,14 @@
                 $('#accountsActiveDeals').append('<option value="' + row.id + '">' + row.name + '</option>');
             });
             makeReport(soURL, accounts, 'both', rangeStart, rangeEnd, $table);
-            makeReport(profitURL, accountsProfit, palnProfit, rangeStartProfit, rangeEndProfit, $tableProfit);
-            makeReport(activeDealsURL, accountsActiveDeals, palnActiveDeals, rangeStartActiveDeals, rangeEndActiveDeals, $tableActiveDeals);
+            makeReport(profitURL, accountsProfit, palnProfit, rangeStartProfit, rangeEndProfit, $tableProfit, strategyProfit);
+            makeReport(activeDealsURL, accountsActiveDeals, palnActiveDeals, rangeStartActiveDeals, rangeEndActiveDeals, $tableActiveDeals, strategyActiveDeals);
         });
     }
 
 
     $(function () {
+            // strategyActiveDeals
             $table = $('#tbl').DataTable(columns);
             // profit
             $tableProfit = $('#tblProfit').DataTable(columnsProfit);
@@ -544,13 +555,13 @@
             $('#daterangeProfit').daterangepicker(rangePickerOptions, function (start, end) {
                 $('#daterangeProfit span').html(start.format('MMMM D, YYYY') + ' - ' + end.format('MMMM D, YYYY'));
                 rangeStartProfit = start; rangeEndProfit = end;
-                makeReport(profitURL, accountsProfit, palnProfit, rangeStartProfit, rangeEndProfit, $tableProfit);
+                makeReport(profitURL, accountsProfit, palnProfit, rangeStartProfit, rangeEndProfit, $tableProfit, strategyProfit);
             });
 
             $('#daterangeActiveDeals').daterangepicker(rangePickerOptions, function (start, end) {
                 $('#daterangeActiveDeals span').html(start.format('MMMM D, YYYY') + ' - ' + end.format('MMMM D, YYYY'));
                 rangeStartActiveDeals = start; rangeEndActiveDeals = end;
-                makeReport(activeDealsURL, accountsActiveDeals, palnActiveDeals, rangeStartActiveDeals, rangeEndActiveDeals, $tableActiveDeals);
+                makeReport(activeDealsURL, accountsActiveDeals, palnActiveDeals, rangeStartActiveDeals, rangeEndActiveDeals, $tableActiveDeals, strategyActiveDeals);
             });
 
             $('.account').select2().on('change', function () {
@@ -561,23 +572,27 @@
             // profit
             $('.accountProfit').select2().on('change', function () {
                 accountsProfit = $(this).val();
-                makeReport(profitURL, accountsProfit, palnProfit, rangeStartProfit, rangeEndProfit, $tableProfit);
+                makeReport(profitURL, accountsProfit, palnProfit, rangeStartProfit, rangeEndProfit, $tableProfit, strategyProfit);
             });
             $('.planProfit').select2().on('change', function () {
                 palnProfit = $(this).val();
-                makeReport(profitURL, accountsProfit, palnProfit, rangeStartProfit, rangeEndProfit, $tableProfit);
+                makeReport(profitURL, accountsProfit, palnProfit, rangeStartProfit, rangeEndProfit, $tableProfit, strategyProfit);
             });
-
+            $('.strategyProfit').select2().on('change', function () {
+                strategyProfit = $(this).val();
+                makeReport(profitURL, accountsProfit, palnProfit, rangeStartProfit, rangeEndProfit, $tableProfit, strategyProfit);
+            });
 
             // profit
             $('.accountsActiveDeals').select2().on('change', function () {
               accountsActiveDeals = $(this).val();
-                makeReport(activeDealsURL, accountsActiveDeals, palnActiveDeals, rangeStartActiveDeals, rangeEndActiveDeals, $tableActiveDeals);
+                makeReport(activeDealsURL, accountsActiveDeals, palnActiveDeals, rangeStartActiveDeals, rangeEndActiveDeals, $tableActiveDeals, strategyActiveDeals);
             });
             $('.planActiveDeals').select2().on('change', function () {
                 palnActiveDeals = $(this).val();
-                makeReport(activeDealsURL, accountsActiveDeals, palnActiveDeals, rangeStartActiveDeals, rangeEndActiveDeals, $tableActiveDeals);
+                makeReport(activeDealsURL, accountsActiveDeals, palnActiveDeals, rangeStartActiveDeals, rangeEndActiveDeals, $tableActiveDeals, strategyActiveDeals);
             });
+
 
             updateAccounts();
         });

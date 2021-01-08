@@ -12,6 +12,7 @@ namespace App\Http\Controllers\Traits;
 use Auth;
 use DB;
 use App\Http\Controllers\Traits\Helper;
+use App\Bot;
 
 trait Dashboard
 {
@@ -389,10 +390,31 @@ trait Dashboard
         $api = $this->api_key();
         $api_key = $api['key'];
         $parent = $api['parent'];
-        $account = $request->account;
+        $account = $request->account ?? [];
+        $bots = false;
+        $strategy = $request->strategy ?? "both";
+
+        if ($strategy != "both" && !empty($strategy)) {
+            $bots = Bot::all()
+                ->filter(function ($item) use ($strategy) {
+                    $st = $item->strategy_list;
+                    $done = false;
+                    foreach ($st as $sk) {
+                        foreach ($sk as $key => $value) {
+                            if ($key == 'strategy' && $value == $strategy) {
+                                $done = true;
+                            }
+                        }
+                    }
+
+                    return $done;
+                })->map(function ($item) {
+                    return $item->id;
+                })->values()->toArray();
+        }
+
         $plan = $request->plan ?? "both";
         $dates = [$request->start, $request->end];
-
 
         $bases = DB::table('deals')
             ->select(DB::raw('SUBSTRING_INDEX(pair, "_", 1) base'))
@@ -439,6 +461,12 @@ trait Dashboard
                     }
                     return $query;
                 })
+                ->where(function ($query) use ($bots) {
+                    if ($bots) {
+                        return $query->whereIn('bot_id', $bots);
+                    }
+                    return $query;
+                })
                 ->whereIn('status', ['completed', 'panic_sold', 'stop_loss_finished'])
                 ->where(function ($query) use ($user, $parent) {
                     if ($parent) {
@@ -447,7 +475,6 @@ trait Dashboard
                     return $query;
                 })
                 ->sum('final_profit');
-
 
             $base_deals = DB::table('deals')
                 ->where('api_key_id', $api_key)
@@ -475,6 +502,12 @@ trait Dashboard
                 ->where(function ($query) use ($user, $parent) {
                     if ($parent) {
                         return $query->whereIn("account_id", $user->accounts);
+                    }
+                    return $query;
+                })
+                ->where(function ($query) use ($bots) {
+                    if ($bots) {
+                        return $query->whereIn('bot_id', $bots);
                     }
                     return $query;
                 })
@@ -509,6 +542,12 @@ trait Dashboard
                     }
                     return $query;
                 })
+                ->where(function ($query) use ($bots) {
+                    if ($bots) {
+                        return $query->whereIn('bot_id', $bots);
+                    }
+                    return $query;
+                })
                 ->count();
 
             $base_panic = DB::table('deals')
@@ -537,6 +576,11 @@ trait Dashboard
                 ->where(function ($query) use ($user, $parent) {
                     if ($parent) {
                         return $query->whereIn("account_id", $user->accounts);
+                    }
+                    return $query;
+                })->where(function ($query) use ($bots) {
+                    if ($bots) {
+                        return $query->whereIn('bot_id', $bots);
                     }
                     return $query;
                 })
@@ -570,6 +614,11 @@ trait Dashboard
                         return $query->whereIn("account_id", $user->accounts);
                     }
                     return $query;
+                })->where(function ($query) use ($bots) {
+                    if ($bots) {
+                        return $query->whereIn('bot_id', $bots);
+                    }
+                    return $query;
                 })
                 ->count();
 
@@ -599,6 +648,11 @@ trait Dashboard
                 ->where(function ($query) use ($user, $parent) {
                     if ($parent) {
                         return $query->whereIn("account_id", $user->accounts);
+                    }
+                    return $query;
+                })->where(function ($query) use ($bots) {
+                    if ($bots) {
+                        return $query->whereIn('bot_id', $bots);
                     }
                     return $query;
                 })
@@ -632,6 +686,11 @@ trait Dashboard
                         return $query->whereIn("account_id", $user->accounts);
                     }
                     return $query;
+                })->where(function ($query) use ($bots) {
+                    if ($bots) {
+                        return $query->whereIn('bot_id', $bots);
+                    }
+                    return $query;
                 })
                 ->count();
 
@@ -661,6 +720,11 @@ trait Dashboard
                 ->where(function ($query) use ($user, $parent) {
                     if ($parent) {
                         return $query->whereIn("account_id", $user->accounts);
+                    }
+                    return $query;
+                })->where(function ($query) use ($bots) {
+                    if ($bots) {
+                        return $query->whereIn('bot_id', $bots);
                     }
                     return $query;
                 })
@@ -693,6 +757,11 @@ trait Dashboard
                         return $query->whereIn("account_id", $user->accounts);
                     }
                     return $query;
+                })->where(function ($query) use ($bots) {
+                    if ($bots) {
+                        return $query->whereIn('bot_id', $bots);
+                    }
+                    return $query;
                 })
                 ->count();
 
@@ -721,6 +790,11 @@ trait Dashboard
                 ->where(function ($query) use ($user, $parent) {
                     if ($parent) {
                         return $query->whereIn("account_id", $user->accounts);
+                    }
+                    return $query;
+                })->where(function ($query) use ($bots) {
+                    if ($bots) {
+                        return $query->whereIn('bot_id', $bots);
                     }
                     return $query;
                 })
