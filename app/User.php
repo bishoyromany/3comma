@@ -69,4 +69,9 @@ class User extends Authenticatable implements CanVerifyEmailContract
 
         return $accounts;
     }
+
+    public function getApiKey()
+    {
+        return $this->api_keys[0]->id ?? 0;
+    }
 }

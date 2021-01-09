@@ -66,14 +66,15 @@
 
             <li class="{{ request()->is('3commas*') ? 'active menu-open' : '' }} treeview">
                 <a href="#">
-                    <i class="fa fa-refresh"></i>
+                    <i class="fa fa-cog"></i>
                     <span>Accounts/Pairs</span>
                     <span class="pull-right-container">
                         <i class="fa fa-angle-left pull-right"></i>
                     </span>
                 </a>
                 <ul class="treeview-menu">
-                    <li class="{{ request()->is('user/accounts/index') ? 'active' : '' }}"><a href="{{ route('user.accounts.index') }}"><i class="fa fa-hand-peace-o"></i> Assign User Accounts<small class="label pull-right bg-primary">New!</small></span></a></li>
+                    <li class="{{ request()->is('user/accounts/index') ? 'active' : '' }}"><a href="{{ route('user.accounts.index') }}"><i class="fa fa-user"></i> Assign User Accounts<small class="label pull-right bg-primary">New!</small></span></a></li>
+                    <li class="{{ request()->is('pairs') ? 'active' : '' }}"><a href="{{ route('pairs') }}"><i class="fa fa-user"></i> Manage Pairs<small class="label pull-right bg-primary">New!</small></span></a></li>
                 </ul>
             </li>
 

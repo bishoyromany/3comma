@@ -267,7 +267,7 @@ class ProfitController extends Controller
                 $button = '<button class="btn btn-success">Unblock</button>';
                 $input = '<input type="hidden" name="pairs" value=\'' . json_encode($bl) . '\' />';
             }
-            $pr->actions = '<form method="POST" onclick="block($(this))" action="' . route("3commas/updateParisBlackList") . '">' . $input . $button . ' <input type="hidden" name="_token" value="' . csrf_token() . '" /></form>';
+            $pr->actions = '<form method="POST" class="pairs-block-form" action="' . route("3commas/updateParisBlackList") . '">' . $input . $button . ' <input type="hidden" name="_token" value="' . csrf_token() . '" /></form>';
             $profits[] = $pr;
         }
         return response()->json($profits);

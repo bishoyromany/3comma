@@ -306,6 +306,8 @@ class ThreeCommasController extends Controller
 
     public function updateParisBlackList(Request $request)
     {
+        dd($request->all());
+
         if ($request->pairs) {
             $request->merge(['pairs' => json_decode($request->pairs)]);
         }

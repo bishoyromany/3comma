@@ -132,6 +132,8 @@
                 <option value="both">Both</option>
                 <option value="cqs_binance_futures">cqs_binance_futures</option>
                 <option value="cqs_premium_new">cqs_premium_new</option>
+                <option value="swing_trade_pros_futures">swing_trade_pros_futures</option>
+                <option value="bitcartel_signals">bitcartel_signals</option>
               </select>
             </div>
 

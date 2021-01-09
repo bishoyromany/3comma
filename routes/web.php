@@ -56,6 +56,8 @@ Route::group(['middleware' => ['web', 'auth', /*'isEmailVerified'*/]], function 
      Route::get('/calculator/longBot', 'CalculatorController@longBot');
      Route::get('/calculator/shortBot', 'CalculatorController@shortBot');
 
+     Route::get('/pairs', 'PairsController@index')->name("pairs");
+
      Route::get('/plan', 'PlanController@index');
 
      Route::get('/profile', 'ProfileController@index');
@@ -94,19 +96,12 @@ Route::group(['middleware' => ['web', 'auth', /*'isEmailVerified'*/]], function 
 
      $name = 'scheduler';
      Route::get('/scheduler', "SchedulerController@index")->name("$name.index");
-
      Route::get("/scheduler/edit/{task}", "SchedulerController@edit")->name("$name.edit");
-
      Route::patch("/scheduler/update/{task}", "SchedulerController@update")->name("$name.update");
-
      Route::get("/scheduler/toggle/{task}", "SchedulerController@toggle")->name("$name.toggle");
-
      Route::get("/scheduler/run/{task}", "SchedulerController@run")->name("$name.run");
-
      Route::get("/scheduler/create", "SchedulerController@create")->name("$name.create");
-
      Route::post("/scheduler/store", "SchedulerController@store")->name("$name.store");
-
      Route::delete("/scheduler/delete", "SchedulerController@delete")->name("$name.delete");
 });
 
