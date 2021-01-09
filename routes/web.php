@@ -57,6 +57,7 @@ Route::group(['middleware' => ['web', 'auth', /*'isEmailVerified'*/]], function 
      Route::get('/calculator/shortBot', 'CalculatorController@shortBot');
 
      Route::get('/pairs', 'PairsController@index')->name("pairs");
+     Route::get('/active/deals', 'DealController@activeDeals')->name("active.deals");
 
      Route::get('/plan', 'PlanController@index');
 

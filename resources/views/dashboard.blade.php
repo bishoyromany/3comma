@@ -196,7 +196,7 @@
   </div>
 </div>
 
-<div class="row">
+{{-- <div class="row">
   <div class="col-sm-12 col-md-12">
     <div class="box box-primary">
       <div class="box-header">
@@ -239,7 +239,7 @@
       </div>
     </div>
   </div>
-</div>
+</div> --}}
 
 
 
@@ -462,19 +462,19 @@
         ]
     };
 
-    var columnsActiveDeals = {
-        "columns": [
-            { "title": "ID / Bot", "data": "id_bot" },
-            { "title": "Pair", "data": "pair" },
-            { "title": "BO", "data": "base_order_volume" },
-            { "title": "SO", "data": "safety_order_volume" },
-            { "title": "SOS", "data": "safety_order_step_percentage" },
-            { "title": "MC", "data": "martingale_coefficient" },
-            { "title": "Safety Trades", "data": "safety_trades" },
-            { "title": "TP", "data": "take_profit" },
-            { "title": "actions", "data": "actions" },
-        ]
-    };
+    // var columnsActiveDeals = {
+    //     "columns": [
+    //         { "title": "ID / Bot", "data": "id_bot" },
+    //         { "title": "Pair", "data": "pair" },
+    //         { "title": "BO", "data": "base_order_volume" },
+    //         { "title": "SO", "data": "safety_order_volume" },
+    //         { "title": "SOS", "data": "safety_order_step_percentage" },
+    //         { "title": "MC", "data": "martingale_coefficient" },
+    //         { "title": "Safety Trades", "data": "safety_trades" },
+    //         { "title": "TP", "data": "take_profit" },
+    //         { "title": "actions", "data": "actions" },
+    //     ]
+    // };
 
     var rangePickerOptions = {
         opens: "right",
@@ -492,7 +492,7 @@
 
     var soURL = "{{ route('dashboard/soSum') }}";
     var profitURL = "{{ route('dashboard/profit') }}";
-    var activeDealsURL = "{{ route('dashboard/activeDeals') }}";
+    // var activeDealsURL = "{{ route('dashboard/activeDeals') }}";
     var rangeStart, rangeEnd;
     var accounts = [];
     var rangeStartProfit, rangeEndProfit;
@@ -500,10 +500,10 @@
     var palnProfit = [];
     var strategyProfit = [];
 
-    var rangeStartActiveDeals, rangeEndActiveDeals;
-    var accountsActiveDeals = [];
-    var palnActiveDeals = [];
-    var strategyActiveDeals = [];
+    // var rangeStartActiveDeals, rangeEndActiveDeals;
+    // var accountsActiveDeals = [];
+    // var palnActiveDeals = [];
+    // var strategyActiveDeals = [];
 
     function makeReport(url, acc, plan, rs, re, t, strategy) {
       $('.overlay').show();
@@ -541,11 +541,11 @@
             response.forEach(function (row, index) {
                 $('#' + pairId).append('<option value="' + row.id + '">' + row.name + '</option>');
                 $('#accountProfit').append('<option value="' + row.id + '">' + row.name + '</option>');
-                $('#accountsActiveDeals').append('<option value="' + row.id + '">' + row.name + '</option>');
+                // $('#accountsActiveDeals').append('<option value="' + row.id + '">' + row.name + '</option>');
             });
             makeReport(soURL, accounts, 'both', rangeStart, rangeEnd, $table);
             makeReport(profitURL, accountsProfit, palnProfit, rangeStartProfit, rangeEndProfit, $tableProfit, strategyProfit);
-            makeReport(activeDealsURL, accountsActiveDeals, palnActiveDeals, rangeStartActiveDeals, rangeEndActiveDeals, $tableActiveDeals, strategyActiveDeals);
+            // makeReport(activeDealsURL, accountsActiveDeals, palnActiveDeals, rangeStartActiveDeals, rangeEndActiveDeals, $tableActiveDeals, strategyActiveDeals);
         });
     }
 
@@ -555,7 +555,7 @@
             $table = $('#tbl').DataTable(columns);
             // profit
             $tableProfit = $('#tblProfit').DataTable(columnsProfit);
-            $tableActiveDeals = $('#tblActiveDeals').DataTable(columnsActiveDeals);
+            // $tableActiveDeals = $('#tblActiveDeals').DataTable(columnsActiveDeals);
 
             $('#daterange').daterangepicker(rangePickerOptions, function (start, end) {
                 $('#daterange span').html(start.format('MMMM D, YYYY') + ' - ' + end.format('MMMM D, YYYY'));
@@ -569,11 +569,11 @@
                 makeReport(profitURL, accountsProfit, palnProfit, rangeStartProfit, rangeEndProfit, $tableProfit, strategyProfit);
             });
 
-            $('#daterangeActiveDeals').daterangepicker(rangePickerOptions, function (start, end) {
-                $('#daterangeActiveDeals span').html(start.format('MMMM D, YYYY') + ' - ' + end.format('MMMM D, YYYY'));
-                rangeStartActiveDeals = start; rangeEndActiveDeals = end;
-                makeReport(activeDealsURL, accountsActiveDeals, palnActiveDeals, rangeStartActiveDeals, rangeEndActiveDeals, $tableActiveDeals, strategyActiveDeals);
-            });
+            // $('#daterangeActiveDeals').daterangepicker(rangePickerOptions, function (start, end) {
+            //     $('#daterangeActiveDeals span').html(start.format('MMMM D, YYYY') + ' - ' + end.format('MMMM D, YYYY'));
+            //     rangeStartActiveDeals = start; rangeEndActiveDeals = end;
+            //     makeReport(activeDealsURL, accountsActiveDeals, palnActiveDeals, rangeStartActiveDeals, rangeEndActiveDeals, $tableActiveDeals, strategyActiveDeals);
+            // });
 
             $('.account').select2().on('change', function () {
                 accounts = $(this).val();
@@ -595,14 +595,14 @@
             });
 
             // profit
-            $('.accountsActiveDeals').select2().on('change', function () {
-              accountsActiveDeals = $(this).val();
-                makeReport(activeDealsURL, accountsActiveDeals, palnActiveDeals, rangeStartActiveDeals, rangeEndActiveDeals, $tableActiveDeals, strategyActiveDeals);
-            });
-            $('.planActiveDeals').select2().on('change', function () {
-                palnActiveDeals = $(this).val();
-                makeReport(activeDealsURL, accountsActiveDeals, palnActiveDeals, rangeStartActiveDeals, rangeEndActiveDeals, $tableActiveDeals, strategyActiveDeals);
-            });
+            // $('.accountsActiveDeals').select2().on('change', function () {
+            //   accountsActiveDeals = $(this).val();
+            //     makeReport(activeDealsURL, accountsActiveDeals, palnActiveDeals, rangeStartActiveDeals, rangeEndActiveDeals, $tableActiveDeals, strategyActiveDeals);
+            // });
+            // $('.planActiveDeals').select2().on('change', function () {
+            //     palnActiveDeals = $(this).val();
+            //     makeReport(activeDealsURL, accountsActiveDeals, palnActiveDeals, rangeStartActiveDeals, rangeEndActiveDeals, $tableActiveDeals, strategyActiveDeals);
+            // });
 
 
             updateAccounts();

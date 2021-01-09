@@ -67,14 +67,15 @@
             <li class="{{ request()->is('3commas*') ? 'active menu-open' : '' }} treeview">
                 <a href="#">
                     <i class="fa fa-cog"></i>
-                    <span>Accounts/Pairs</span>
+                    <span>Accounts/Pairs/Deals</span>
                     <span class="pull-right-container">
                         <i class="fa fa-angle-left pull-right"></i>
                     </span>
                 </a>
                 <ul class="treeview-menu">
-                    <li class="{{ request()->is('user/accounts/index') ? 'active' : '' }}"><a href="{{ route('user.accounts.index') }}"><i class="fa fa-user"></i> Assign User Accounts<small class="label pull-right bg-primary">New!</small></span></a></li>
-                    <li class="{{ request()->is('pairs') ? 'active' : '' }}"><a href="{{ route('pairs') }}"><i class="fa fa-user"></i> Manage Pairs<small class="label pull-right bg-primary">New!</small></span></a></li>
+                    <li class="{{ request()->is('user/accounts/index') ? 'active' : '' }}"><a href="{{ route('user.accounts.index') }}"><i class="fa fa-user"></i> Assign User Accounts</span></a></li>
+                    <li class="{{ request()->is('pairs') ? 'active' : '' }}"><a href="{{ route('pairs') }}"><i class="fa fa-money"></i> Manage Pairs</span></a></li>
+                    <li class="{{ request()->is('active/deals') ? 'active' : '' }}"><a href="{{ route('active.deals') }}"><i class="fa fa-gift"></i> Active Positions</span></a></li>
                 </ul>
             </li>
 
@@ -87,13 +88,13 @@
                     </span>
                 </a>
                 <ul class="treeview-menu">
-                    <li class="{{ request()->is('scheduler') ? 'active' : '' }}"><a href="{{ route('scheduler.index') }}"><i class="fa fa-hand-peace-o"></i> Crons<small class="label pull-right bg-primary">New!</small></span></a></li>
-                    <li class="{{ request()->is('3commas/loadDeal') ? 'active' : '' }}"><a href="{{ url('3commas/loadDeal') }}"><i class="fa fa-hand-peace-o"></i> Load Deals<small class="label pull-right bg-primary">New!</small></span></a></li>
-                    <li class="{{ request()->is('3commas/loadBots') ? 'active' : '' }}"><a href="{{ url('3commas/loadBots') }}"><i class="fa fa-hand-peace-o"></i> Load Bots<small class="label pull-right bg-primary">New!</small></span></a></li>
-                    <li class="{{ request()->is('3commas/loadAccounts') ? 'active' : '' }}"><a href="{{ url('3commas/loadAccounts') }}"><i class="fa fa-hand-peace-o"></i> Load Accounts<small class="label pull-right bg-primary">New!</small></span></a></li>
-                    <li class="{{ request()->is('3commas/parisBlackList') ? 'active' : '' }}"><a href="{{ url('3commas/parisBlackList') }}"><i class="fa fa-hand-peace-o"></i> Paris Black List<small class="label pull-right bg-primary">New!</small></span></a></li>
-                    <li class="{{ request()->is('run/monitor') ? 'active' : '' }}"><a href="{{ url('run/monitor') }}"><i class="fa fa-hand-peace-o"></i> Run Monitor<small class="label pull-right bg-primary">New!</small></span></a></li>
-                    <li class="{{ request()->is('stop/monitor') ? 'active' : '' }}"><a href="{{ url('stop/monitor') }}"><i class="fa fa-hand-peace-o"></i> Stop Monitor<small class="label pull-right bg-primary">New!</small></span></a></li>
+                    <li class="{{ request()->is('scheduler') ? 'active' : '' }}"><a href="{{ route('scheduler.index') }}"><i class="fa fa-hand-peace-o"></i> Crons</span></a></li>
+                    <li class="{{ request()->is('3commas/loadDeal') ? 'active' : '' }}"><a href="{{ url('3commas/loadDeal') }}"><i class="fa fa-hand-peace-o"></i> Load Deals</span></a></li>
+                    <li class="{{ request()->is('3commas/loadBots') ? 'active' : '' }}"><a href="{{ url('3commas/loadBots') }}"><i class="fa fa-hand-peace-o"></i> Load Bots</span></a></li>
+                    <li class="{{ request()->is('3commas/loadAccounts') ? 'active' : '' }}"><a href="{{ url('3commas/loadAccounts') }}"><i class="fa fa-hand-peace-o"></i> Load Accounts</span></a></li>
+                    <li class="{{ request()->is('3commas/parisBlackList') ? 'active' : '' }}"><a href="{{ url('3commas/parisBlackList') }}"><i class="fa fa-hand-peace-o"></i> Paris Black List</span></a></li>
+                    <li class="{{ request()->is('run/monitor') ? 'active' : '' }}"><a href="{{ url('run/monitor') }}"><i class="fa fa-hand-peace-o"></i> Run Monitor</span></a></li>
+                    <li class="{{ request()->is('stop/monitor') ? 'active' : '' }}"><a href="{{ url('stop/monitor') }}"><i class="fa fa-hand-peace-o"></i> Stop Monitor</span></a></li>
                 </ul>
             </li>
         </ul><!-- /.sidebar-menu -->

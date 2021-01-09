@@ -47,4 +47,9 @@ class DealController extends Controller
 
         return view('pages.deal.show', compact('deal'));
     }
+
+    public function activeDeals()
+    {
+        return view('pages.deal.activeDeals', ['api_key' => auth()->user()->getApiKey()]);
+    }
 }
