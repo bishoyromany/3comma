@@ -182,6 +182,11 @@ return [
         'method'        => 'PATCH',
         'security'      => 'SIGNED'
     ],
+    'strategy_list' => [
+        'end_point'     => '/public/api/ver1/bots/strategy_list',
+        'method'        => 'GET',
+        'security'      => 'SIGNED'
+    ],
     'response' => [
         401 => 'Code 401: Api key doesn\'t have enough permissions',
         403 => 'Code 403: Access forbidden',

@@ -113,6 +113,7 @@ Route::get('/run/monitor', 'Monitor@index')->name("monitor/start");
 Route::get('/stop/monitor', 'Monitor@index')->name("monitor/stop");
 
 
+Route::get('/3commas/strategyList', 'ThreeCommasController@strategyList')->name('3commas/strategyList');
 Route::get('/3commas/loadDeal', 'ThreeCommasController@loadDealFrom3Commas')->name('3commas/loadDeal');
 Route::get('/3commas/loadDeal/all', 'ThreeCommasController@loadAllDeals')->name('3commas/loadDeal/all');
 Route::get('/3commas/loadBots', 'ThreeCommasController@loadBotsFrom3Commas')->name('3commas/loadBots');

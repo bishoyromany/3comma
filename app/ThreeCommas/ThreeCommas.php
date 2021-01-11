@@ -230,4 +230,10 @@ trait ThreeCommas
         $it = implode(",", $pairs);
         return $this->requestThreeCommas($key, 'update_pairs_black_list', ['pairs' => $it]);
     }
+
+
+    public function strategy_list($key)
+    {
+        return $this->requestThreeCommas($key, 'strategy_list');
+    }
 }

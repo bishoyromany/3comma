@@ -329,4 +329,43 @@ class ThreeCommasController extends Controller
 
         return back();
     }
+
+
+    public function strategyList(Request $request)
+    {
+        $user = Auth::user();
+
+        if (sizeof($user->api_keys) > 0) {
+            $response = $this->strategy_list($user->api_keys[0]);
+            if ($response['status'] == 200) {
+                dd($response);
+                $data = $response['response'];
+                // $pairs = PairsBlackList::where('api_key', '=', $user->api_keys[0]->id)->get()[0] ?? false;
+                // $pairsStore = [
+                //     'user_id' => $user->id,
+                //     'api_key' => $user->api_keys[0]->id,
+                //     'pairs'   => $data->pairs
+                // ];
+
+                // if ($pairs) {
+                //     $pairs->update($pairsStore);
+                // } else {
+                //     $pairs = PairsBlackList::create($pairsStore);
+                // }
+
+                if (!$array) {
+                    return response()->json($data);
+                } else {
+                    return $data;
+                }
+            } else {
+                dd($response);
+                Log::critical(['user_id' => $user->id, 'username' => $user->name, 'parisBlackList' => $response['status'], 'message' => $response['response']]);
+                // Pushover::push('parisBlackList', $response['response']);
+                // Pushover::send();
+            }
+        }
+
+        echo 'succeed';
+    }
 }

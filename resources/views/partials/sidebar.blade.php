@@ -92,6 +92,7 @@
                     <li class="{{ request()->is('scheduler') ? 'active' : '' }}"><a href="{{ route('scheduler.index') }}"><i class="fa fa-hand-peace-o"></i> Crons</span></a></li>
                     <li class="{{ request()->is('3commas/loadDeal') ? 'active' : '' }}"><a href="{{ url('3commas/loadDeal') }}"><i class="fa fa-hand-peace-o"></i> Load Deals</span></a></li>
                     <li class="{{ request()->is('3commas/loadBots') ? 'active' : '' }}"><a href="{{ url('3commas/loadBots') }}"><i class="fa fa-hand-peace-o"></i> Load Bots</span></a></li>
+                    <li class="{{ request()->is('3commas/strategyList') ? 'active' : '' }}"><a href="{{ url('3commas/strategyList') }}"><i class="fa fa-hand-peace-o"></i> Strategy List</span></a></li>
                     <li class="{{ request()->is('3commas/loadAccounts') ? 'active' : '' }}"><a href="{{ url('3commas/loadAccounts') }}"><i class="fa fa-hand-peace-o"></i> Load Accounts</span></a></li>
                     <li class="{{ request()->is('3commas/parisBlackList') ? 'active' : '' }}"><a href="{{ url('3commas/parisBlackList') }}"><i class="fa fa-hand-peace-o"></i> Paris Black List</span></a></li>
                     <li class="{{ request()->is('run/monitor') ? 'active' : '' }}"><a href="{{ url('run/monitor') }}"><i class="fa fa-hand-peace-o"></i> Run Monitor</span></a></li>
