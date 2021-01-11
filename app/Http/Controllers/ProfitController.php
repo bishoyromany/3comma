@@ -70,7 +70,32 @@ class ProfitController extends Controller
             $data['short'] = DB::select($this->buildBaseQuery($api_key, "Deal::ShortDeal"));
         }
 
+        dd($data);
+
         return view('pages.profit.pair', $data);
+    }
+
+    function strategy()
+    {
+        $data = array(
+            'both'      => array(),
+            'long'      => array(),
+            'short'     => array(),
+            'api_key'   => 0
+        );
+
+        $api_key = $this->api_key()['key'];
+
+        if ($api_key) {
+            $api_key = $api_key;
+
+            $data['api_key'] = $api_key;
+            $data['both'] = DB::select($this->buildBaseQuery($api_key, "both", 'strategy'));
+            $data['long'] = DB::select($this->buildBaseQuery($api_key, "Deal", 'strategy'));
+            $data['short'] = DB::select($this->buildBaseQuery($api_key, "Deal::ShortDeal", 'strategy'));
+        }
+
+        return view('pages.profit.strategy', $data);
     }
 
     function bot()
@@ -92,7 +117,6 @@ class ProfitController extends Controller
             $data['long'] = DB::select($this->buildBaseQuery($api_key, "Deal", "bot"));
             $data['short'] = DB::select($this->buildBaseQuery($api_key, "Deal::ShortDeal", "bot"));
         }
-
         return view('pages.profit.bot', $data);
     }
 
@@ -273,6 +297,55 @@ class ProfitController extends Controller
         return response()->json($profits);
     }
 
+    public function getStrategyByBase(Request $request)
+    {
+        $base = $request->input('base');
+        $account = $request->input('account');
+        $strategy = $request->input('strategy');
+        $start = $request->input('start');
+        $end = $request->input('end');
+        $interval = $request->input('interval');
+        $api_key = $request->input('api_key');
+        $accountsQuery = $this->getAccountsQuery();
+
+        $wr = $this->generateReportWhere($start, $end, $interval, $strategy);
+        $where = $wr['where'];
+        $range = $wr['range'];
+        $whereAcc = isset($account) ? "AND account_id IN ('" . implode("','", $account) . "')" : "";
+
+        $strategies = $this->getStrategies($request);
+
+        $result = [];
+
+        foreach ($strategies as $strategy) {
+            $bots = implode(',', Bot::select('id')->where('strategy_list', 'LIKE', '%' . $strategy . '%')->get()->map(function ($item) {
+                return $item->id;
+            })->toArray());
+
+            $sql = "SELECT
+                SUM(final_profit) total_profit,
+                SUM(CASE WHEN status in ('completed', 'panic_sold')
+                    THEN 1
+                    ELSE 0
+                    END
+                    ) as total_deals
+                FROM deals
+                WHERE pair LIKE '{$base}_%' AND `bot_id` IN ({$bots}) {$whereAcc} {$where} AND api_key_id={$api_key} $range
+                AND status IN ('completed', 'stop_loss_finished' 'panic_sold', 'switched')
+                {$accountsQuery}
+                AND `finished?` = 1
+                -- GROUP BY final_profit
+                ORDER BY total_profit DESC;";
+
+            $profit = DB::select($sql)[0];
+            $profit->strategy = $strategy;
+
+            $result[] = $profit;
+        }
+
+        return response()->json($result);
+    }
+
     function getBotByBase(Request $request)
     {
         $type = $request->input('type');
@@ -370,6 +443,28 @@ class ProfitController extends Controller
         $api_key = $request->input('api_key');
 
         return response()->json(Deal::bots($api_key));
+    }
+
+    function getStrategies(Request $request)
+    {
+        $base = $request->input('base');
+        $strategy = $request->input('strategy');
+        $api_key = $request->input('api_key');
+        $strategies = [];
+
+        Bot::select("strategy_list")->distinct("strategy_list")->where("api_key_id", '=', $api_key)->get()->map(function ($item) use (&$strategies) {
+            $st = $item->strategy_list ?? [];
+            foreach ($st as $s) {
+                $s = $s->strategy ?? false;
+                if ($s && !in_array($st, $strategies)) {
+                    $strategies[] = $s;
+                }
+            }
+
+            return $item;
+        });
+
+        return $strategies;
     }
 
     function buildBaseQuery($api_key, $strategy, $type = "pair")

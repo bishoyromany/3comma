@@ -47,12 +47,15 @@ Route::group(['middleware' => ['web', 'auth', /*'isEmailVerified'*/]], function 
      Route::get('/profit/date', 'ProfitController@date');
      Route::get('/profit/pair', 'ProfitController@pair')->name("profit.pair");
      Route::get('/profit/bot', 'ProfitController@bot');
+     Route::get('/profit/strategy', 'ProfitController@strategy');
      Route::post('/profit/getPairByBase', 'ProfitController@getPairByBase')->name('profit/getPairByBase');
+     Route::post('/profit/strategyByBase', 'ProfitController@getStrategyByBase')->name('profit/getStrategyByBase');
      Route::post('/profit/getBotByBase', 'ProfitController@getBotByBase')->name('profit/getBotByBase');
      Route::post('/profit/getProfitByDate', 'ProfitController@getProfitByDate')->name('profit/getProfitByDate');
      Route::post('/profit/getBasePair', 'ProfitController@getBasePair')->name('profit/getBasePair');
      Route::post('/profit/getAccounts', 'ProfitController@getAccounts')->name('profit/getAccounts');
      Route::post('/profit/getBots', 'ProfitController@getBots')->name('profit/getBots');
+     Route::post('/profit/getStrategies', 'ProfitController@getStrategies')->name('profit/getStrategies');
      Route::get('/calculator/longBot', 'CalculatorController@longBot');
      Route::get('/calculator/shortBot', 'CalculatorController@shortBot');
 
