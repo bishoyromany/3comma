@@ -11,6 +11,7 @@ use Illuminate\Http\Request;
 use App\Http\Controllers\Traits\Helper;
 use App\Http\Controllers\ThreeCommasController;
 use App\PairsBlackList;
+use App\Strategy;
 
 class ProfitController extends Controller
 {
@@ -322,6 +323,8 @@ class ProfitController extends Controller
                 return $item->id;
             })->toArray());
 
+            $botQuery = !empty($bots) ? "AND `bot_id` IN ({$bots})" : "AND `bot_id` IN (0)";
+
             $sql = "SELECT
                 SUM(final_profit) total_profit,
                 SUM(CASE WHEN status in ('completed', 'panic_sold')
@@ -330,7 +333,7 @@ class ProfitController extends Controller
                     END
                     ) as total_deals
                 FROM deals
-                WHERE pair LIKE '{$base}_%' AND `bot_id` IN ({$bots}) {$whereAcc} {$where} AND api_key_id={$api_key} $range
+                WHERE pair LIKE '{$base}_%' $botQuery {$whereAcc} {$where} AND api_key_id={$api_key} $range
                 AND status IN ('completed', 'stop_loss_finished' 'panic_sold', 'switched')
                 {$accountsQuery}
                 AND `finished?` = 1
@@ -450,18 +453,8 @@ class ProfitController extends Controller
         $base = $request->input('base');
         $strategy = $request->input('strategy');
         $api_key = $request->input('api_key');
-        $strategies = [];
-
-        Bot::select("strategy_list")->distinct("strategy_list")->where("api_key_id", '=', $api_key)->get()->map(function ($item) use (&$strategies) {
-            $st = $item->strategy_list ?? [];
-            foreach ($st as $s) {
-                $s = $s->strategy ?? false;
-                if ($s && !in_array($st, $strategies)) {
-                    $strategies[] = $s;
-                }
-            }
-
-            return $item;
+        $strategies = Strategy::select("key")->where("api_key", '=', $api_key)->get()->map(function ($item) {
+            return $item->key;
         });
 
         return $strategies;

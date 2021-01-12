@@ -15,6 +15,7 @@ use Dyaa\Pushover\Facades\Pushover;
 use Illuminate\Http\Request;
 use App\User;
 use App\PairsBlackList;
+use App\Strategy;
 
 class ThreeCommasController extends Controller
 {
@@ -64,6 +65,7 @@ class ThreeCommasController extends Controller
                             $data = $response['response'];
                         }
                         $allData[] = ['data' => $data, 'user' => $user, 'api' => $user->api_keys[0]];
+                        dd($data[20]);
                         foreach ($data as $json) {
                             try {
                                 try {
@@ -331,27 +333,31 @@ class ThreeCommasController extends Controller
     }
 
 
-    public function strategyList(Request $request)
+    public function strategyList(Request $request, $array = false)
     {
         $user = Auth::user();
 
         if (sizeof($user->api_keys) > 0) {
-            $response = $this->strategy_list($user->api_keys[0]);
+            $response = $this->strategy_list($user->api_keys[0], $request->account_id ?? false);
             if ($response['status'] == 200) {
-                dd($response);
                 $data = $response['response'];
-                // $pairs = PairsBlackList::where('api_key', '=', $user->api_keys[0]->id)->get()[0] ?? false;
-                // $pairsStore = [
-                //     'user_id' => $user->id,
-                //     'api_key' => $user->api_keys[0]->id,
-                //     'pairs'   => $data->pairs
-                // ];
+                foreach ($data as $key => $value) {
+                    $strategies = Strategy::where('api_key', '=', $user->api_keys[0]->id)->where('key', '=', $key)->get()[0] ?? false;
+                    $strategyStore = [
+                        'user_id'  => $user->id,
+                        'api_key'  => $user->api_keys[0]->id,
+                        'key'      => $key,
+                        'name'     => $value->name ?? $key,
+                        'strategy' => $value
+                    ];
 
-                // if ($pairs) {
-                //     $pairs->update($pairsStore);
-                // } else {
-                //     $pairs = PairsBlackList::create($pairsStore);
-                // }
+                    if ($strategies) {
+                        $strategies->update($strategyStore);
+                    } else {
+                        $strategies = Strategy::create($strategyStore);
+                    }
+                }
+
 
                 if (!$array) {
                     return response()->json($data);
@@ -359,7 +365,6 @@ class ThreeCommasController extends Controller
                     return $data;
                 }
             } else {
-                dd($response);
                 Log::critical(['user_id' => $user->id, 'username' => $user->name, 'parisBlackList' => $response['status'], 'message' => $response['response']]);
                 // Pushover::push('parisBlackList', $response['response']);
                 // Pushover::send();

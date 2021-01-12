@@ -231,9 +231,12 @@ trait ThreeCommas
         return $this->requestThreeCommas($key, 'update_pairs_black_list', ['pairs' => $it]);
     }
 
-
-    public function strategy_list($key)
+    public function strategy_list($key, $account_id = false)
     {
-        return $this->requestThreeCommas($key, 'strategy_list');
+        if ($account_id) {
+            return $this->requestThreeCommas($key, 'strategy_list', ['account_id' => $account_id]);
+        } else {
+            return $this->requestThreeCommas($key, 'strategy_list');
+        }
     }
 }
