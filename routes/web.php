@@ -18,6 +18,11 @@ Route::get('/clear-cache', function () {
      return $exitCode;
 });
 
+Route::get('/migrate', function () {
+     $exitCode = \Artisan::call('migrate');
+     return $exitCode;
+});
+
 Route::get('/', function () {
      return view('welcome');
 });
