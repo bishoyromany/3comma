@@ -65,7 +65,6 @@ class ThreeCommasController extends Controller
                             $data = $response['response'];
                         }
                         $allData[] = ['data' => $data, 'user' => $user, 'api' => $user->api_keys[0]];
-                        dd($data[20]);
                         foreach ($data as $json) {
                             try {
                                 try {

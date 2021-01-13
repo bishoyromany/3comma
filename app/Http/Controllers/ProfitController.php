@@ -71,8 +71,6 @@ class ProfitController extends Controller
             $data['short'] = DB::select($this->buildBaseQuery($api_key, "Deal::ShortDeal"));
         }
 
-        dd($data);
-
         return view('pages.profit.pair', $data);
     }
 
