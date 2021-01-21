@@ -67,11 +67,23 @@ class ThreeCommasController extends Controller
                         $allData[] = ['data' => $data, 'user' => $user, 'api' => $user->api_keys[0]];
                         foreach ($data as $json) {
                             try {
+                                $new = false;
                                 try {
                                     $deal = Deal::findOrFail($json->id);
                                 } catch (ModelNotFoundException $e) {
+                                    $new = true;
                                     $deal = new Deal();
                                 }
+
+                                if ($new) {
+                                    $bot = Bot::find($json->bot_id);
+                                    if ($bot) {
+                                        $json->strategy_bot = json_encode($bot->strategy_list);
+                                    } else {
+                                        $json->strategy_bot = '[{"strategy":"NO_STRATEGY"}]';
+                                    }
+                                }
+
                                 $deal->fill((array)$json);
                                 $deal->api_key_id = $user->api_keys[0]['id'];
                                 $deal->save();

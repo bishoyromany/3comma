@@ -16,7 +16,7 @@ class Deal extends Model
         "closed_at", "bought_volume", "bought_amount", "from_currency", "to_currency", "from_currency_id", "to_currency_id", "sold_volume", "sold_amount",
         "cancellable?", "panic_sellable?", "bought_average_price", "take_profit_price", "current_price", "finished?", "failed_message", "completed_safety_orders_count",
         "completed_safety_orders_count", "current_active_safety_orders", "reserved_base_coin", "reserved_second_coin", "deal_has_error", "type", "base_order_volume_type",
-        "safety_order_volume_type", "api_key_id", "strategy"
+        "safety_order_volume_type", "api_key_id", "strategy_bot"
     ];
 
     public static function bots($api_key_id): array

@@ -69,7 +69,7 @@ class CreateDealsTable extends Migration
             $table->string('base_order_volume_type')->nullable()->default(null);
             $table->string('safety_order_volume_type')->nullable()->default(null);
             $table->integer('api_key_id')->nullable()->default(null);
-            $table->string('strategy')->nullable()->default(null);
+            $table->string('strategy_bot')->nullable()->default(null);
             $table->nullableTimestamps();
         });
     }
