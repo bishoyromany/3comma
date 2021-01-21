@@ -69,6 +69,7 @@ class CreateDealsTable extends Migration
             $table->string('base_order_volume_type')->nullable()->default(null);
             $table->string('safety_order_volume_type')->nullable()->default(null);
             $table->integer('api_key_id')->nullable()->default(null);
+            $table->string('strategy')->nullable()->default(null);
             $table->nullableTimestamps();
         });
     }
@@ -78,8 +79,8 @@ class CreateDealsTable extends Migration
      *
      * @return void
      */
-     public function down()
-     {
-       Schema::dropIfExists($this->set_schema_table);
-     }
+    public function down()
+    {
+        Schema::dropIfExists($this->set_schema_table);
+    }
 }
