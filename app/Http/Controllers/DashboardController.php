@@ -69,4 +69,11 @@ class DashboardController extends Controller
 
         return response()->json($data);
     }
+
+    public function riskDeals(Request $request)
+    {
+        $data = $this->getRiskDeals($request);
+
+        return response()->json($data);
+    }
 }

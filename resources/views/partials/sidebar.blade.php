@@ -77,6 +77,7 @@
                     <li class="{{ request()->is('user/accounts/index') ? 'active' : '' }}"><a href="{{ route('user.accounts.index') }}"><i class="fa fa-user"></i> Assign User Accounts</span></a></li>
                     <li class="{{ request()->is('pairs') ? 'active' : '' }}"><a href="{{ route('pairs') }}"><i class="fa fa-money"></i> Manage Pairs</span></a></li>
                     <li class="{{ request()->is('active/deals') ? 'active' : '' }}"><a href="{{ route('active.deals') }}"><i class="fa fa-gift"></i> Active Positions</span></a></li>
+                    <li class="{{ request()->is('risk/deals') ? 'active' : '' }}"><a href="{{ route('risk.deals') }}"><i class="fa fa-bug"></i> Risk Positions</span></a></li>
                 </ul>
             </li>
 

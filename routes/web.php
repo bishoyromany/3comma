@@ -33,6 +33,7 @@ Route::group(['middleware' => ['web', 'auth', /*'isEmailVerified'*/]], function 
      Route::post('/dashboard/soSum', 'DashboardController@soSum')->name('dashboard/soSum');
      Route::post('/dashboard/profit', 'DashboardController@profit')->name('dashboard/profit');
      Route::post('/dashboard/activeDeals', 'DashboardController@activeDeals')->name('dashboard/activeDeals');
+     Route::post('/dashboard/riskDeals', 'DashboardController@riskDeals')->name('dashboard/riskDeals');
 
      Route::get('/apikey', 'ApiKeyController@index');
      Route::get('/apikey/create', 'ApiKeyController@create');
@@ -66,6 +67,7 @@ Route::group(['middleware' => ['web', 'auth', /*'isEmailVerified'*/]], function 
 
      Route::get('/pairs', 'PairsController@index')->name("pairs");
      Route::get('/active/deals', 'DealController@activeDeals')->name("active.deals");
+     Route::get('/risk/deals', 'DealController@riskDeals')->name("risk.deals");
 
      Route::get('/plan', 'PlanController@index');
 

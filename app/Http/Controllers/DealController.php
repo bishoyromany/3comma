@@ -52,4 +52,9 @@ class DealController extends Controller
     {
         return view('pages.deal.activeDeals', ['api_key' => auth()->user()->getApiKey()]);
     }
+
+    public function riskDeals()
+    {
+        return view('pages.deal.riskDeals', ['api_key' => auth()->user()->getApiKey()]);
+    }
 }
