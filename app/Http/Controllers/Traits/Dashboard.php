@@ -914,6 +914,7 @@ trait Dashboard
 
         $data = DB::table('deals')
             ->where('api_key_id', $api_key)
+            ->where('finished?', 0)
             ->where('completed_safety_orders_count', '>=', $safety_orders)
             ->where(function ($query) use ($account) {
                 if (!empty($account)) {
