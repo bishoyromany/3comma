@@ -91,7 +91,9 @@
                 <ul class="treeview-menu">
                     <li class="{{ request()->is('scheduler') ? 'active' : '' }}"><a href="{{ route('scheduler.index') }}"><i class="fa fa-hand-peace-o"></i> Crons</span></a></li>
                     <li class="{{ request()->is('3commas/loadDeal') ? 'active' : '' }}"><a href="{{ url('3commas/loadDeal') }}"><i class="fa fa-hand-peace-o"></i> Load Deals</span></a></li>
+                    <li class="{{ request()->is('3commas/loadDeal/all') ? 'active' : '' }}"><a href="{{ url('3commas/loadDeal/all') }}"><i class="fa fa-hand-peace-o"></i> Load All Deals</span></a></li>
                     <li class="{{ request()->is('3commas/loadBots') ? 'active' : '' }}"><a href="{{ url('3commas/loadBots') }}"><i class="fa fa-hand-peace-o"></i> Load Bots</span></a></li>
+                    <li class="{{ request()->is('3commas/loadBots/all') ? 'active' : '' }}"><a href="{{ url('3commas/loadBots/all') }}"><i class="fa fa-hand-peace-o"></i> Load All Bots</span></a></li>
                     <li class="{{ request()->is('3commas/strategyList') ? 'active' : '' }}"><a href="{{ url('3commas/strategyList') }}?account_id=29121136"><i class="fa fa-hand-peace-o"></i> Strategy List</span></a></li>
                     <li class="{{ request()->is('3commas/loadAccounts') ? 'active' : '' }}"><a href="{{ url('3commas/loadAccounts') }}"><i class="fa fa-hand-peace-o"></i> Load Accounts</span></a></li>
                     <li class="{{ request()->is('3commas/parisBlackList') ? 'active' : '' }}"><a href="{{ url('3commas/parisBlackList') }}"><i class="fa fa-hand-peace-o"></i> Paris Black List</span></a></li>

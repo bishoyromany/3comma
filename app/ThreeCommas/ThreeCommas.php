@@ -115,9 +115,9 @@ trait ThreeCommas
         return $this->requestThreeCommas($key, 'user_deals', ['limit' => $limit, 'offset' => $offset, 'account_id' => $account_id, 'bot_id' => $bot_id, 'scope' => $scope]);
     }
 
-    public function user_bots($key)
+    public function user_bots($key, $limit = null, $offset = null)
     {
-        return $this->requestThreeCommas($key, 'user_bots');
+        return $this->requestThreeCommas($key, 'user_bots', ['limit' => $limit, 'offset' => $offset]);
     }
 
     public function all_accounts($key)

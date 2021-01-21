@@ -312,26 +312,16 @@ class ProfitController extends Controller
         $range = $wr['range'];
         $whereAcc = isset($account) ? "AND account_id IN ('" . implode("','", $account) . "')" : "";
 
-        // $strategies = $this->getStrategies($request);
-        $st = [];
-        $strategies = Deal::select("strategy_bot")->distinct("strategy_bot")->get()->map(function ($item) use (&$st) {
-            if (!empty($item->strategy_bot)) {
-                foreach (json_decode($item->strategy_bot) as $s) {
-                    $st[] = $s->strategy;
-                }
-            }
-            return json_decode($item->strategy_bot)->strategy_bot ?? null;
-        });
-        $strategies = $st;
+        $strategies = $this->getStrategies($request);
 
         $result = [];
 
         foreach ($strategies as $strategy) {
-            if (empty($strategy)) {
-                continue;
-            }
+            $bots = implode(',', Bot::select('id')->where('strategy_list', 'LIKE', '%' . $strategy . '%')->get()->map(function ($item) {
+                return $item->id;
+            })->toArray());
 
-            $botQuery = "AND `strategy_bot` LIKE '%$strategy%'";
+            $botQuery = !empty($bots) ? "AND `bot_id` IN ({$bots})" : "AND `bot_id` IN (0)";
 
             $sql = "SELECT
                 SUM(final_profit) total_profit,

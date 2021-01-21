@@ -122,5 +122,6 @@ Route::get('/3commas/strategyList', 'ThreeCommasController@strategyList')->name(
 Route::get('/3commas/loadDeal', 'ThreeCommasController@loadDealFrom3Commas')->name('3commas/loadDeal');
 Route::get('/3commas/loadDeal/all', 'ThreeCommasController@loadAllDeals')->name('3commas/loadDeal/all');
 Route::get('/3commas/loadBots', 'ThreeCommasController@loadBotsFrom3Commas')->name('3commas/loadBots');
+Route::get('/3commas/loadBots/all', 'ThreeCommasController@loadAllBots')->name('3commas/loadBots/all');
 Route::get('/3commas/loadAccounts', 'ThreeCommasController@loadAccountsFrom3Commas')->name('3commas/loadAccounts');
 Route::get('/3commas/parisBlackList', 'ThreeCommasController@parisBlackList')->name('3commas/parisBlackList');

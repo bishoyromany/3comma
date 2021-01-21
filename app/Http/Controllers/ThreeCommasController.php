@@ -43,6 +43,19 @@ class ThreeCommasController extends Controller
         return "done";
     }
 
+    public function loadAllBots(Request $request)
+    {
+        ini_set('max_execution_time', 600);
+        $offset = 100;
+        $x = $request->start;
+        for (; $x <= $request->end; $x++) {
+            $request->merge(['offset' => $offset * $x]);
+            echo $this->loadBotsFrom3Commas($request);
+        }
+
+        return "done";
+    }
+
     public function loadDealFrom3Commas(Request $request)
     {
         $users = User::all();
@@ -75,13 +88,11 @@ class ThreeCommasController extends Controller
                                     $deal = new Deal();
                                 }
 
-                                if ($new) {
-                                    $bot = Bot::find($json->bot_id);
-                                    if ($bot) {
-                                        $json->strategy_bot = json_encode($bot->strategy_list);
-                                    } else {
-                                        $json->strategy_bot = '[{"strategy":"NO_STRATEGY"}]';
-                                    }
+                                $bot = Bot::find($json->bot_id);
+                                if ($bot) {
+                                    $json->strategy_bot = json_encode($bot->strategy_list);
+                                } else {
+                                    $json->strategy_bot = '[{"strategy":"NO_STRATEGY"}]';
                                 }
 
                                 $deal->fill((array)$json);
@@ -107,12 +118,14 @@ class ThreeCommasController extends Controller
         echo "succeed \n";
     }
 
-    public function loadBotsFrom3Commas()
+    public function loadBotsFrom3Commas(Request $request)
     {
         $users = User::all();
+        $limit = $request->limit ?? 100;
+        $offset = $request->offset ?? 100;
         foreach ($users as $user) {
             if (sizeof($user->api_keys) > 0) {
-                $response = $this->user_bots($user->api_keys[0]);
+                $response = $this->user_bots($user->api_keys[0], $limit, $offset);
                 if ($response['status'] == 200) {
                     $data = $response['response'];
                     foreach ($data as $json) {
