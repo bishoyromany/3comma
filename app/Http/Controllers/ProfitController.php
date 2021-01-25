@@ -310,18 +310,30 @@ class ProfitController extends Controller
         $wr = $this->generateReportWhere($start, $end, $interval, $strategy);
         $where = $wr['where'];
         $range = $wr['range'];
-        $whereAcc = isset($account) ? "AND account_id IN ('" . implode("','", $account) . "')" : "";
+        $whereAcc = isset($account) ? "AND account_id IN (" . implode(",", $account) . ")" : "";
 
         $strategies = $this->getStrategies($request);
+
+        $strategies = array_unique(Deal::distinct("strategy_bot")->select("strategy_bot")->get()->map(function ($item) {
+            $strategy = $item->strategy_bot;
+            if (empty($strategy)) {
+                return false;
+            } else {
+                return json_decode($strategy)[0]->strategy ?? "NO_STRATEGY";
+            }
+        })->filter(function ($item) {
+            return $item;
+        })->toArray());
 
         $result = [];
 
         foreach ($strategies as $strategy) {
-            $bots = implode(',', Bot::select('id')->where('strategy_list', 'LIKE', '%' . $strategy . '%')->get()->map(function ($item) {
-                return $item->id;
-            })->toArray());
+            // $bots = implode(',', Bot::select('id')->where('strategy_list', 'LIKE', '%' . $strategy . '%')->get()->map(function ($item) {
+            //     return $item->id;
+            // })->toArray());
 
-            $botQuery = !empty($bots) ? "AND `bot_id` IN ({$bots})" : "AND `bot_id` IN (0)";
+            // $botQuery = !empty($bots) ? "AND `bot_id` IN ({$bots})" : "AND `bot_id` IN (0)";
+            $botQuery = "AND `strategy_bot` LIKE '%$strategy%'";
 
             $sql = "SELECT
                 SUM(final_profit) total_profit,
